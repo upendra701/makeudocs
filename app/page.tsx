@@ -41,19 +41,26 @@ export default function Home() {
           </p>
 
           {/* Main Actions */}
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="mt-10 grid w-full max-w-4xl gap-4 sm:grid-cols-3">
             <Link
               href="/image-to-pdf"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-semibold text-white shadow-lg transition hover:bg-blue-700 sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-semibold text-white shadow-lg transition hover:bg-blue-700"
             >
-              📸 Upload Assignment Photos
+              📸 Image to PDF
             </Link>
 
             <Link
-              href="/image-to-pdf"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-7 py-4 font-semibold text-zinc-800 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 sm:w-auto"
+              href="/word-to-pdf"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-7 py-4 font-semibold text-zinc-800 shadow-sm transition hover:border-blue-400 hover:bg-blue-50"
             >
-              📄 Image to PDF
+              📄 Word to PDF
+            </Link>
+
+            <Link
+              href="/pdf-to-images"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-7 py-4 font-semibold text-zinc-800 shadow-sm transition hover:border-blue-400 hover:bg-blue-50"
+            >
+              🖼️ PDF to Images
             </Link>
           </div>
         </div>
@@ -120,9 +127,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-zinc-200 bg-white px-6 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-sm text-zinc-500 sm:flex-row">
-          <p>
-            © 2026 MakeUdoc
-          </p>
+          <p>© 2026 MakeUdoc</p>
 
           <p>
             Built for simple document preparation.
