@@ -3180,265 +3180,303 @@ export default function WordToPdfPage() {
                 </div>
 
                 {isEditingText && (
-                  <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-white p-2 shadow-sm">
+                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-2 shadow-sm">
+                    <div className="flex flex-wrap items-center gap-1.5">
 
-                    <span className="mr-1 hidden text-xs font-semibold text-zinc-500 sm:inline">
-                      Format:
-                    </span>
+                      {/* FONT */}
+                      <div className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-white p-1">
+                        <span className="hidden px-2 text-[10px] font-bold uppercase tracking-wide text-zinc-400 sm:inline">
+                          Font
+                        </span>
 
-                    <select
-                      value={editorFontSize}
-                      onChange={(event) =>
-                        applyEditorFontSize(
-                          event.target.value
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 w-[72px] rounded-lg border border-zinc-200 bg-white px-2 text-xs font-semibold text-zinc-800 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label="Font size"
-                      title="Font size"
-                    >
-                      {![
-                        "8px",
-                        "9px",
-                        "10px",
-                        "11px",
-                        "12px",
-                        "14px",
-                        "16px",
-                        "18px",
-                        "20px",
-                        "24px",
-                        "28px",
-                        "32px",
-                        "36px",
-                        "48px",
-                        "72px",
-                      ].includes(
-                        editorFontSize
-                      ) && (
-                        <option value={editorFontSize}>
-                          {editorFontSize.replace(
-                            "px",
-                            ""
+                        <select
+                          value={editorFontSize}
+                          onChange={(event) =>
+                            applyEditorFontSize(
+                              event.target.value
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="h-9 w-[76px] rounded-lg border-0 bg-zinc-50 px-2 text-xs font-bold text-zinc-800 outline-none transition hover:bg-zinc-100 focus:bg-white focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+                          aria-label="Font size"
+                          title="Font size"
+                        >
+                          {![
+                            "8px",
+                            "9px",
+                            "10px",
+                            "11px",
+                            "12px",
+                            "14px",
+                            "16px",
+                            "18px",
+                            "20px",
+                            "24px",
+                            "28px",
+                            "32px",
+                            "36px",
+                            "48px",
+                            "72px",
+                          ].includes(
+                            editorFontSize
+                          ) && (
+                            <option value={editorFontSize}>
+                              {editorFontSize.replace(
+                                "px",
+                                ""
+                              )}
+                            </option>
                           )}
-                        </option>
-                      )}
-                      <option value="8px">8</option>
-                      <option value="9px">9</option>
-                      <option value="10px">10</option>
-                      <option value="11px">11</option>
-                      <option value="12px">12</option>
-                      <option value="14px">14</option>
-                      <option value="16px">16</option>
-                      <option value="18px">18</option>
-                      <option value="20px">20</option>
-                      <option value="24px">24</option>
-                      <option value="28px">28</option>
-                      <option value="32px">32</option>
-                      <option value="36px">36</option>
-                      <option value="48px">48</option>
-                      <option value="72px">72</option>
-                    </select>
+                          <option value="8px">8</option>
+                          <option value="9px">9</option>
+                          <option value="10px">10</option>
+                          <option value="11px">11</option>
+                          <option value="12px">12</option>
+                          <option value="14px">14</option>
+                          <option value="16px">16</option>
+                          <option value="18px">18</option>
+                          <option value="20px">20</option>
+                          <option value="24px">24</option>
+                          <option value="28px">28</option>
+                          <option value="32px">32</option>
+                          <option value="36px">36</option>
+                          <option value="48px">48</option>
+                          <option value="72px">72</option>
+                        </select>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={
-                        resetSelectedTextFormatting
-                      }
-                      disabled={
-                        !isEditingText
-                      }
-                      className="h-9 rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Reset selected text, or the edited word at the caret"
-                      aria-label="Reset selected text formatting"
-                    >
-                      ↺ Reset
-                    </button>
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={
+                            resetSelectedTextFormatting
+                          }
+                          disabled={
+                            !isEditingText
+                          }
+                          className="h-9 rounded-lg px-2.5 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-40"
+                          title="Reset selected text formatting"
+                          aria-label="Reset selected text formatting"
+                        >
+                          ↺
+                          <span className="ml-1 hidden sm:inline">
+                            Reset
+                          </span>
+                        </button>
+                      </div>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={() =>
-                        runEditorCommand(
-                          "bold"
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 min-w-9 rounded-lg border border-zinc-200 px-3 text-sm font-bold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Bold"
-                      aria-label="Bold"
-                    >
-                      B
-                    </button>
+                      {/* TEXT STYLE */}
+                      <div className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-white p-1">
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={() =>
+                            runEditorCommand(
+                              "bold"
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-extrabold text-zinc-800 transition hover:bg-zinc-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          title="Bold"
+                          aria-label="Bold"
+                        >
+                          B
+                        </button>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={() =>
-                        runEditorCommand(
-                          "italic"
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 min-w-9 rounded-lg border border-zinc-200 px-3 text-sm italic font-semibold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Italic"
-                      aria-label="Italic"
-                    >
-                      I
-                    </button>
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={() =>
+                            runEditorCommand(
+                              "italic"
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-semibold italic text-zinc-800 transition hover:bg-zinc-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          title="Italic"
+                          aria-label="Italic"
+                        >
+                          I
+                        </button>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={() =>
-                        runEditorCommand(
-                          "underline"
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 min-w-9 rounded-lg border border-zinc-200 px-3 text-sm font-semibold text-zinc-800 underline decoration-2 underline-offset-2 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Underline"
-                      aria-label="Underline"
-                    >
-                      U
-                    </button>
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={() =>
+                            runEditorCommand(
+                              "underline"
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-semibold text-zinc-800 underline decoration-2 underline-offset-2 transition hover:bg-zinc-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          title="Underline"
+                          aria-label="Underline"
+                        >
+                          U
+                        </button>
+                      </div>
 
-                    <div className="mx-1 h-6 w-px bg-zinc-200" />
+                      {/* ALIGNMENT */}
+                      <div className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-white p-1">
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={() =>
+                            runEditorCommand(
+                              "justifyLeft"
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-bold text-zinc-700 transition hover:bg-zinc-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          title="Align left"
+                          aria-label="Align left"
+                        >
+                          ☰
+                        </button>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={() =>
-                        runEditorCommand(
-                          "justifyLeft"
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 min-w-9 rounded-lg border border-zinc-200 px-2 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Align left"
-                      aria-label="Align left"
-                    >
-                      ⬅
-                    </button>
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={() =>
+                            runEditorCommand(
+                              "justifyCenter"
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-bold text-zinc-700 transition hover:bg-zinc-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          title="Align center"
+                          aria-label="Align center"
+                        >
+                          ≡
+                        </button>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={() =>
-                        runEditorCommand(
-                          "justifyCenter"
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 min-w-9 rounded-lg border border-zinc-200 px-2 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Align center"
-                      aria-label="Align center"
-                    >
-                      ↔
-                    </button>
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={() =>
+                            runEditorCommand(
+                              "justifyRight"
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-bold text-zinc-700 transition hover:bg-zinc-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          title="Align right"
+                          aria-label="Align right"
+                        >
+                          ≡
+                        </button>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={() =>
-                        runEditorCommand(
-                          "justifyRight"
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 min-w-9 rounded-lg border border-zinc-200 px-2 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Align right"
-                      aria-label="Align right"
-                    >
-                      ➡
-                    </button>
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={() =>
+                            runEditorCommand(
+                              "justifyFull"
+                            )
+                          }
+                          disabled={
+                            !editorSelectionActive
+                          }
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-bold text-zinc-700 transition hover:bg-zinc-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          title="Justify"
+                          aria-label="Justify"
+                        >
+                          ☰
+                        </button>
+                      </div>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={() =>
-                        runEditorCommand(
-                          "justifyFull"
-                        )
-                      }
-                      disabled={
-                        !editorSelectionActive
-                      }
-                      className="h-9 min-w-9 rounded-lg border border-zinc-200 px-2 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      title="Justify"
-                      aria-label="Justify"
-                    >
-                      ☰
-                    </button>
+                      {/* HISTORY */}
+                      <div className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-white p-1">
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={
+                            undoEditorChange
+                          }
+                          className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-100 hover:text-blue-700"
+                          title="Undo"
+                          aria-label="Undo"
+                        >
+                          <span className="text-base leading-none">
+                            ↶
+                          </span>
+                          <span className="hidden sm:inline">
+                            Undo
+                          </span>
+                        </button>
 
-                    <div className="mx-1 h-6 w-px bg-zinc-200" />
+                        <button
+                          type="button"
+                          onMouseDown={(event) =>
+                            event.preventDefault()
+                          }
+                          onClick={
+                            redoEditorChange
+                          }
+                          className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-100 hover:text-blue-700"
+                          title="Redo"
+                          aria-label="Redo"
+                        >
+                          <span className="text-base leading-none">
+                            ↷
+                          </span>
+                          <span className="hidden sm:inline">
+                            Redo
+                          </span>
+                        </button>
+                      </div>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={
-                        undoEditorChange
-                      }
-                      className="h-9 rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
-                      title="Undo"
-                    >
-                      ↶ Undo
-                    </button>
+                      {/* STATUS */}
+                      <span className="ml-auto hidden rounded-lg bg-blue-50 px-2.5 py-2 text-[11px] font-semibold text-blue-700 sm:inline-flex">
+                        {editorSelectionActive
+                          ? "Text selected"
+                          : "Select text to format"}
+                      </span>
 
-                    <button
-                      type="button"
-                      onMouseDown={(event) =>
-                        event.preventDefault()
-                      }
-                      onClick={
-                        redoEditorChange
-                      }
-                      className="h-9 rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
-                      title="Redo"
-                    >
-                      ↷ Redo
-                    </button>
+                    </div>
 
-                    <span className="ml-auto text-[11px] font-medium text-zinc-400">
-                      {editorSelectionActive
-                        ? "Text selected"
-                        : "Select text to format"}
-                    </span>
+                    <div className="mt-2 flex items-center justify-between px-1 sm:hidden">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                        Formatting toolbar
+                      </span>
 
+                      <span className="text-[10px] font-medium text-zinc-500">
+                        {editorSelectionActive
+                          ? "Selection active"
+                          : "Select text"}
+                      </span>
+                    </div>
                   </div>
                 )}
 
