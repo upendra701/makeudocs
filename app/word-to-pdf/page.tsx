@@ -2140,45 +2140,51 @@ export default function WordToPdfPage() {
           }
 
           /*
-           * Keep the original aspect ratio.
-           * Nothing is stretched horizontally or vertically.
+           * ============================================================
+           * PDF PAGE SIZING FIX
+           * ============================================================
+           *
+           * The previous implementation first created a full A4 canvas
+           * and then fitted the captured Word page into that canvas.
+           * That introduced an additional scale/centering step and could
+           * make the Word document appear much smaller than the original.
+           *
+           * Instead, preserve the captured Word page's natural aspect
+           * ratio. The width remains the normal A4 width, while the
+           * height is calculated from the actual captured page ratio.
+           *
+           * For a normal A4 Word page this still produces a standard
+           * 595.28 x 841.89 pt A4 PDF page, but without the extra
+           * fit-and-center operation.
            */
-          const fitScale =
-            Math.min(
-              A4_WIDTH_PX /
-                sourceCanvas.width,
-              A4_HEIGHT_PX /
-                sourceHeight
+          const pdfWidthPt =
+            A4_WIDTH_PT;
+
+          const pdfHeightPt =
+            Math.max(
+              1,
+              pdfWidthPt *
+                (sourceHeight /
+                  Math.max(
+                    1,
+                    sourceCanvas.width
+                  ))
             );
 
-          const drawWidth =
-            sourceCanvas.width *
-            fitScale;
-
-          const drawHeight =
-            sourceHeight *
-            fitScale;
-
-          const offsetX =
-            (A4_WIDTH_PX -
-              drawWidth) /
-            2;
-
-          const offsetY =
-            (A4_HEIGHT_PX -
-              drawHeight) /
-            2;
-
+          /*
+           * Create a canvas containing only this page/slice.
+           * No scaling is applied while copying the source pixels.
+           */
           const outputCanvas =
             document.createElement(
               "canvas"
             );
 
           outputCanvas.width =
-            A4_WIDTH_PX;
+            sourceCanvas.width;
 
           outputCanvas.height =
-            A4_HEIGHT_PX;
+            Math.ceil(sourceHeight);
 
           const context =
             outputCanvas.getContext(
@@ -2187,7 +2193,7 @@ export default function WordToPdfPage() {
 
           if (!context) {
             throw new Error(
-              "Unable to create the A4 PDF canvas."
+              "Unable to create the PDF canvas."
             );
           }
 
@@ -2197,8 +2203,8 @@ export default function WordToPdfPage() {
           context.fillRect(
             0,
             0,
-            A4_WIDTH_PX,
-            A4_HEIGHT_PX
+            outputCanvas.width,
+            outputCanvas.height
           );
 
           context.drawImage(
@@ -2207,10 +2213,10 @@ export default function WordToPdfPage() {
             sourceY,
             sourceCanvas.width,
             sourceHeight,
-            offsetX,
-            offsetY,
-            drawWidth,
-            drawHeight
+            0,
+            0,
+            sourceCanvas.width,
+            sourceHeight
           );
 
           const imageData =
@@ -2225,22 +2231,23 @@ export default function WordToPdfPage() {
 
           const pdfPage =
             pdf.addPage([
-              A4_WIDTH_PT,
-              A4_HEIGHT_PT,
+              pdfWidthPt,
+              pdfHeightPt,
             ]);
 
           /*
-           * The image itself is already A4-sized.
+           * Draw the captured page across the full PDF page width.
+           * There is intentionally no offsetX/offsetY and no second
+           * fitScale here. This is what prevents the document from
+           * being unnecessarily shrunk into the middle of the page.
            */
           pdfPage.drawImage(
             image,
             {
               x: 0,
               y: 0,
-              width:
-                A4_WIDTH_PT,
-              height:
-                A4_HEIGHT_PT,
+              width: pdfWidthPt,
+              height: pdfHeightPt,
             }
           );
         };
