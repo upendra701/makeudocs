@@ -2,7 +2,7 @@
 
 import {
   ChangeEvent,
-  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
   useEffect,
   useRef,
   useState,
@@ -88,12 +88,14 @@ export default function PassportPhotoPage() {
     startY: 0,
     originX: 0,
     originY: 0,
+    pointerId: null as number | null,
   });
 
   const [imageUrl, setImageUrl] = useState("");
   const [fileName, setFileName] = useState("");
   const [selectedSizeId, setSelectedSizeId] = useState("india");
   const [zoom, setZoom] = useState(1);
+  const [previewWidth, setPreviewWidth] = useState(PREVIEW_WIDTH);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [imageLoaded, setImageLoaded] = useState(false);
   const [error, setError] = useState("");
@@ -110,7 +112,21 @@ export default function PassportPhotoPage() {
 
   const previewAspectRatio = selectedSize.ratio;
 
-  const previewHeight = PREVIEW_WIDTH / previewAspectRatio;
+  const previewHeight = previewWidth / previewAspectRatio;
+
+  useEffect(() => {
+    const updatePreviewWidth = () => {
+      // Keep the desktop size, but make the crop fit comfortably inside
+      // narrow mobile viewports with room for the surrounding card padding.
+      const mobileWidth = window.innerWidth - 64;
+      setPreviewWidth(Math.min(PREVIEW_WIDTH, Math.max(260, mobileWidth)));
+    };
+
+    updatePreviewWidth();
+    window.addEventListener("resize", updatePreviewWidth);
+
+    return () => window.removeEventListener("resize", updatePreviewWidth);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -160,7 +176,7 @@ export default function PassportPhotoPage() {
     }
 
     return Math.max(
-      PREVIEW_WIDTH / image.naturalWidth,
+      previewWidth / image.naturalWidth,
       previewHeight / image.naturalHeight
     );
   };
@@ -294,7 +310,7 @@ export default function PassportPhotoPage() {
     const drawWidth = image.naturalWidth * scale;
     const drawHeight = image.naturalHeight * scale;
 
-    const centeredX = (PREVIEW_WIDTH - drawWidth) / 2;
+    const centeredX = (previewWidth - drawWidth) / 2;
     const centeredY = (previewHeight - drawHeight) / 2;
 
     return {
@@ -315,7 +331,7 @@ export default function PassportPhotoPage() {
 
     if (!context) return;
 
-    canvas.width = PREVIEW_WIDTH;
+    canvas.width = Math.round(previewWidth);
     canvas.height = Math.round(previewHeight);
 
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -350,6 +366,7 @@ export default function PassportPhotoPage() {
     position.y,
     selectedSizeId,
     previewHeight,
+    previewWidth,
     brightness,
     contrast,
     saturation,
@@ -361,11 +378,12 @@ export default function PassportPhotoPage() {
   };
 
   const startDragging = (
-    event: ReactMouseEvent<HTMLDivElement>
+    event: ReactPointerEvent<HTMLDivElement>
   ) => {
     if (!imageLoaded) return;
 
     event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
 
     dragRef.current = {
       active: true,
@@ -373,13 +391,21 @@ export default function PassportPhotoPage() {
       startY: event.clientY,
       originX: position.x,
       originY: position.y,
+      pointerId: event.pointerId,
     };
   };
 
   const handleDragging = (
-    event: ReactMouseEvent<HTMLDivElement>
+    event: ReactPointerEvent<HTMLDivElement>
   ) => {
-    if (!dragRef.current.active) return;
+    if (
+      !dragRef.current.active ||
+      dragRef.current.pointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    event.preventDefault();
 
     const nextX =
       dragRef.current.originX +
@@ -397,8 +423,15 @@ export default function PassportPhotoPage() {
     });
   };
 
-  const stopDragging = () => {
+  const stopDragging = (event?: ReactPointerEvent<HTMLDivElement>) => {
+    if (event && dragRef.current.pointerId !== event.pointerId) return;
+
+    if (event?.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
     dragRef.current.active = false;
+    dragRef.current.pointerId = null;
   };
 
   const renderCurrentCropToCanvas = (
@@ -435,7 +468,7 @@ export default function PassportPhotoPage() {
         return;
       }
 
-      const scaleX = width / PREVIEW_WIDTH;
+      const scaleX = width / previewWidth;
       const scaleY = height / previewHeight;
 
       context.drawImage(
@@ -606,7 +639,7 @@ export default function PassportPhotoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-10">
+    <main className="min-h-screen overflow-x-hidden bg-zinc-50 px-3 py-6 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center">
@@ -614,7 +647,7 @@ export default function PassportPhotoPage() {
             MakeUdoc
           </p>
 
-          <h1 className="mt-2 text-4xl font-bold tracking-tight text-zinc-900">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
             Passport Photo Maker
           </h1>
 
@@ -658,13 +691,13 @@ export default function PassportPhotoPage() {
 
         {/* Editor */}
         {imageUrl && (
-          <section className="mt-10 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
+          <section className="mt-8 rounded-3xl border border-zinc-200 bg-white p-3 shadow-sm sm:mt-10 sm:p-8">
             <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
               {/* Crop editor */}
               <div>
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                   <div>
-                    <h2 className="text-xl font-bold text-zinc-900">
+                    <h2 className="text-lg font-bold text-zinc-900 sm:text-xl">
                       Position your photo
                     </h2>
 
@@ -677,26 +710,27 @@ export default function PassportPhotoPage() {
                   <button
                     type="button"
                     onClick={resetPosition}
-                    className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
+                    className="w-full rounded-lg border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 sm:w-auto sm:py-2"
                   >
                     Reset
                   </button>
                 </div>
 
-                <div className="mt-6 flex justify-center overflow-auto rounded-2xl bg-zinc-100 p-6">
+                <div className="mt-6 flex w-full justify-center overflow-hidden rounded-2xl bg-zinc-100 p-2 sm:overflow-auto sm:p-6">
                   <div
-                    className="relative select-none overflow-hidden rounded-xl bg-white shadow-lg"
+                    className="relative max-w-full select-none overflow-hidden rounded-xl bg-white shadow-lg"
                     style={{
-                      width: PREVIEW_WIDTH,
+                      width: previewWidth,
                       height: previewHeight,
+                      touchAction: "none",
                       cursor: dragRef.current.active
                         ? "grabbing"
                         : "grab",
                     }}
-                    onMouseDown={startDragging}
-                    onMouseMove={handleDragging}
-                    onMouseUp={stopDragging}
-                    onMouseLeave={stopDragging}
+                    onPointerDown={startDragging}
+                    onPointerMove={handleDragging}
+                    onPointerUp={stopDragging}
+                    onPointerCancel={stopDragging}
                   >
                     <img
                       ref={imageRef}
@@ -737,7 +771,7 @@ export default function PassportPhotoPage() {
 
               {/* Controls */}
               <div>
-                <h2 className="text-xl font-bold text-zinc-900">
+                <h2 className="text-lg font-bold text-zinc-900 sm:text-xl">
                   Photo settings
                 </h2>
 
@@ -970,7 +1004,7 @@ export default function PassportPhotoPage() {
         )}
 
         {/* Privacy */}
-        <section className="mt-8 rounded-3xl border border-blue-100 bg-blue-50 p-8 text-center">
+        <section className="mt-8 rounded-3xl border border-blue-100 bg-blue-50 p-5 text-center sm:p-8">
           <div className="text-3xl">🔒</div>
 
           <h3 className="mt-4 text-xl font-bold text-zinc-900">

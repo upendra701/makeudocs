@@ -1,4 +1,28 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Free Online PDF & Document Tools",
+  description:
+    "Free online tools to convert Word to PDF, images to PDF, merge and compress PDFs, convert PDF pages to images, and create passport-size photos. No sign-up required.",
+  alternates: {
+    canonical: "https://makeudocs.com/",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://makeudocs.com/",
+    title: "Free Online PDF & Document Tools | MakeUdocs",
+    description:
+      "Convert, merge and compress PDFs, convert Word and images to PDF, extract PDF pages as images, and create passport-size photos online for free.",
+    siteName: "MakeUdocs",
+  },
+  twitter: {
+    card: "summary",
+    title: "Free Online PDF & Document Tools | MakeUdocs",
+    description:
+      "Free browser-based tools for Word to PDF, Image to PDF, PDF tools and passport-size photos.",
+  },
+};
 
 const tools = [
   {
