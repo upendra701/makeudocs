@@ -10,10 +10,6 @@ type UseWordDocumentOptions = {
   pdfResult: PdfResult | null;
   setPdfResult: (value: PdfResult | null) => void;
   setPdfFileName: (value: string) => void;
-  setIsEditingText: (value: boolean) => void;
-  setEditorSelectionActive: (value: boolean) => void;
-  setEditorFontSize: (value: string) => void;
-  resetEditorHistory: () => void;
 };
 
 export function useWordDocument({
@@ -22,10 +18,6 @@ export function useWordDocument({
   pdfResult,
   setPdfResult,
   setPdfFileName,
-  setIsEditingText,
-  setEditorSelectionActive,
-  setEditorFontSize,
-  resetEditorHistory,
 }: UseWordDocumentOptions) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -40,19 +32,11 @@ export function useWordDocument({
     setPdfFileName("");
   }, [pdfResult, setPdfFileName, setPdfResult]);
 
-  const resetDocumentUi = useCallback(() => {
-    setIsEditingText(false);
-    setEditorSelectionActive(false);
-    setEditorFontSize("16px");
-    resetEditorHistory();
-  }, [resetEditorHistory, setEditorFontSize, setEditorSelectionActive, setIsEditingText]);
-
   const handleFile = useCallback(
     (file: File) => {
       setError("");
       setRenderError("");
       clearPdfResult();
-      resetDocumentUi();
 
       if (!isDocxFile(file)) {
         setSelectedFile(null);
@@ -62,7 +46,7 @@ export function useWordDocument({
 
       setSelectedFile(file);
     },
-    [clearPdfResult, resetDocumentUi]
+    [clearPdfResult]
   );
 
   const handleFileChange = useCallback(
@@ -90,7 +74,6 @@ export function useWordDocument({
     setSelectedFile(null);
     setError("");
     setRenderError("");
-    resetDocumentUi();
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -99,7 +82,7 @@ export function useWordDocument({
     if (previewContainerRef.current) {
       previewContainerRef.current.innerHTML = "";
     }
-  }, [clearPdfResult, fileInputRef, previewContainerRef, resetDocumentUi]);
+  }, [clearPdfResult, fileInputRef, previewContainerRef]);
 
   return {
     selectedFile,
