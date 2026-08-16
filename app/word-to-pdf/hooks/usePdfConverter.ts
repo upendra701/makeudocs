@@ -9,6 +9,9 @@ type UsePdfConverterOptions = {
   previewContainerRef: React.RefObject<HTMLDivElement | null>;
   setIsConverting: (value: boolean) => void;
   setRenderError: (value: string) => void;
+  setIsEditingText: (value: boolean) => void;
+  setEditorSelectionActive: (value: boolean) => void;
+  setEditorFontSize: (value: string) => void;
   setPdfResult: (value: PdfResult | null) => void;
   setPdfFileName: (value: string) => void;
 };
@@ -18,6 +21,9 @@ export function usePdfConverter({
   previewContainerRef,
   setIsConverting,
   setRenderError,
+  setIsEditingText,
+  setEditorSelectionActive,
+  setEditorFontSize,
   setPdfResult,
   setPdfFileName,
 }: UsePdfConverterOptions) {
@@ -27,6 +33,10 @@ export function usePdfConverter({
     try {
       setIsConverting(true);
       setRenderError("");
+      setIsEditingText(false);
+      setEditorSelectionActive(false);
+      setEditorFontSize("16px");
+
       const pdfBytes = await convertRenderedDocxToPdf(previewContainerRef.current);
 
       const pdfBuffer = new ArrayBuffer(pdfBytes.byteLength);
@@ -51,6 +61,9 @@ export function usePdfConverter({
     previewContainerRef,
     selectedFile,
     setIsConverting,
+    setEditorFontSize,
+    setEditorSelectionActive,
+    setIsEditingText,
     setPdfFileName,
     setPdfResult,
     setRenderError,
