@@ -8,6 +8,7 @@ import {
 
 import { PDFDocument } from "pdf-lib";
 import { WordUploader } from "./components/WordUploader";
+import { WordToPdfSeoContent } from "./components/WordToPdfSeoContent";
 import { useWordDocument } from "./hooks/useWordDocument";
 import { useDocxRenderer } from "./hooks/useDocxRenderer";
 import { usePdfConverter } from "./hooks/usePdfConverter";
@@ -626,10 +627,10 @@ export default function WordToPdfPage() {
         <div className="text-center">
           <div className="mb-3 text-4xl">📄</div>
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
-            Word to PDF
+            Word to PDF Converter
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-600 sm:text-base">
-            Convert your Word document into a submission-ready PDF.
+            Convert your Word documents to PDF online with MakeUdocs. Upload a DOCX file, preview your document, and download a PDF ready for sharing, printing, applications or submission.
           </p>
         </div>
         {/* UPLOAD CARD */}
@@ -965,6 +966,8 @@ export default function WordToPdfPage() {
         <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
           <strong>MakeUdoc:</strong> Your Word document is processed locally in the browser.
         </div>
+
+        <WordToPdfSeoContent />
       </div>
 
       {/* STYLES */}
