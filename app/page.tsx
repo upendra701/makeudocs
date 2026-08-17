@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SiteStructuredData } from "./components/SiteStructuredData";
 
 export const metadata: Metadata = {
   title: "Free Online PDF & Document Tools",
@@ -72,7 +73,10 @@ const tools = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-zinc-900">
+    <>
+      <SiteStructuredData />
+
+      <main className="min-h-screen bg-white text-zinc-900">
       {/* Header */}
       <header className="border-b border-zinc-100 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -324,6 +328,7 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </>
   );
 }
 
