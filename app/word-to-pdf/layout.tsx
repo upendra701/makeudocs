@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BreadcrumbStructuredData } from "../components/BreadcrumbStructuredData";
 
 export const metadata: Metadata = {
   title: "Word to PDF Converter – Free Online | MakeUdocs",
@@ -28,5 +29,22 @@ export default function WordToPdfLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          {
+            name: "MakeUdocs",
+            url: "https://makeudocs.com/",
+          },
+          {
+            name: "Word to PDF",
+            url: "https://makeudocs.com/word-to-pdf",
+          },
+        ]}
+      />
+
+      {children}
+    </>
+  );
 }
