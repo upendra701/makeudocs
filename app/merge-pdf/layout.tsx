@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BreadcrumbStructuredData } from "../components/BreadcrumbStructuredData";
 
 export const metadata: Metadata = {
   title: "Merge PDF Online – Combine Multiple PDF Files",
@@ -23,6 +24,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children;
+export default function Layout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          {
+            name: "MakeUdocs",
+            url: "https://makeudocs.com/",
+          },
+          {
+            name: "Merge PDF",
+            url: "https://makeudocs.com/merge-pdf",
+          },
+        ]}
+      />
+
+      {children}
+    </>
+  );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BreadcrumbStructuredData } from "../components/BreadcrumbStructuredData";
 
 export const metadata: Metadata = {
   title: "Compress PDF Online – Reduce PDF File Size",
@@ -23,6 +24,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children;
+export default function Layout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          {
+            name: "MakeUdocs",
+            url: "https://makeudocs.com/",
+          },
+          {
+            name: "Compress PDF",
+            url: "https://makeudocs.com/compress-pdf",
+          },
+        ]}
+      />
+
+      {children}
+    </>
+  );
 }
