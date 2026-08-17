@@ -181,36 +181,6 @@ export async function convertRenderedDocxToPdf(container: HTMLElement): Promise<
       const tables = Array.from(
         page.querySelectorAll<HTMLTableElement>("table")
       );
-
-      console.log("[Stage4C] PAGE GEOMETRY", {
-        canvasHeight: canvas.height,
-        canvasWidth: canvas.width,
-        pageHeight: pageRect.height,
-        cssToCanvasScale,
-        a4MaxCanvasHeight,
-      });
-
-      tables.forEach((table, index) => {
-        const tableRect = table.getBoundingClientRect();
-
-        const tableTop =
-          (tableRect.top - pageRect.top) * cssToCanvasScale;
-
-        const tableBottom =
-          (tableRect.bottom - pageRect.top) * cssToCanvasScale;
-
-        const tableHeight =
-          tableRect.height * cssToCanvasScale;
-
-        console.log("[Stage4C] TABLE", index, {
-          tableTop,
-          tableBottom,
-          tableHeight,
-          a4MaxCanvasHeight,
-          fitsOneA4Page:
-            tableHeight <= a4MaxCanvasHeight + 8,
-        });
-      });
       const isDocxHeading = (element: HTMLElement) =>
         /^H[1-6]$/.test(element.tagName) ||
         /^docx-preview_heading\d+$/.test(
