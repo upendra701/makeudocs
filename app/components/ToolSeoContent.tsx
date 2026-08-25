@@ -16,13 +16,13 @@ export default function ToolSeoContent({
   related,
 }: ToolSeoContentProps) {
   return (
-    <section className="mt-10 space-y-10 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="mt-12 border-t border-zinc-200 pt-12">
       <div>
         <h2 className="text-2xl font-bold text-zinc-900">About this tool</h2>
         <p className="mt-3 max-w-3xl leading-7 text-zinc-600">{intro}</p>
       </div>
 
-      <div>
+      <div className="mt-12">
         <h2 className="text-2xl font-bold text-zinc-900">Why use MakeUdocs?</h2>
         <ul className="mt-4 grid gap-3 sm:grid-cols-2">
           {benefits.map((benefit) => (
@@ -33,7 +33,7 @@ export default function ToolSeoContent({
         </ul>
       </div>
 
-      <div>
+      <div className="mt-12">
         <h2 className="text-2xl font-bold text-zinc-900">How to use it</h2>
         <ol className="mt-4 space-y-3">
           {steps.map((step, index) => (
@@ -47,19 +47,19 @@ export default function ToolSeoContent({
         </ol>
       </div>
 
-      <div>
+      <div className="mt-12">
         <h2 className="text-2xl font-bold text-zinc-900">Frequently asked questions</h2>
         <div className="mt-4 space-y-4">
           {faq.map((item) => (
-            <div key={item.question} className="rounded-2xl border border-zinc-200 p-5">
+            <div key={item.question} className="border-b border-zinc-200 py-5 last:border-b-0">
               <h3 className="font-semibold text-zinc-900">{item.question}</h3>
-              <p className="mt-2 leading-6 text-zinc-600">{item.answer}</p>
+              <p className="mt-2 max-w-3xl leading-6 text-zinc-600">{item.answer}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div>
+      <div className="mt-12">
         <h2 className="text-2xl font-bold text-zinc-900">Related MakeUdocs tools</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           {related.map((tool) => (
@@ -74,7 +74,7 @@ export default function ToolSeoContent({
         </div>
       </div>
 
-      <p className="border-t border-zinc-200 pt-6 text-sm leading-6 text-zinc-500">
+      <p className="mt-10 border-t border-zinc-200 pt-6 text-sm leading-6 text-zinc-500">
         MakeUdocs processes these document tasks directly in your browser where the tool supports local processing. This keeps the workflow simple and helps you work with your files without unnecessary uploads.
       </p>
     </section>
