@@ -5,8 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { megaMenuGroups, tools } from "../data/tools";
 
 const menuItems = ["PDF Tools", "Convert", "Image Tools", "AI Tools", "Business Tools"] as const;
+type MenuItem = (typeof menuItems)[number];
 
-const iconByCategory: Record<string, string> = {
+const iconByCategory: Record<MenuItem, string> = {
   "PDF Tools": "▣",
   Convert: "↔",
   "Image Tools": "▧",
@@ -14,8 +15,44 @@ const iconByCategory: Record<string, string> = {
   "Business Tools": "▤",
 };
 
+const sectionLabels: Record<MenuItem, string[]> = {
+  "PDF Tools": ["Edit & Annotate", "Organize", "Optimize & Secure"],
+  Convert: ["From PDF", "To PDF", "Image & Format"],
+  "Image Tools": ["Photo & Documents", "Image Conversion", "Optimization"],
+  "AI Tools": ["Understand Documents", "Create & Analyze", "Automation"],
+  "Business Tools": ["Business Documents", "Generators", "Coming Next"],
+};
+
+const sectionAssignments: Record<MenuItem, Record<string, string[]>> = {
+  "PDF Tools": {
+    "Edit & Annotate": ["Edit PDF"],
+    Organize: ["Merge PDF", "Split PDF", "Rotate PDF"],
+    "Optimize & Secure": ["Compress PDF"],
+  },
+  Convert: {
+    "From PDF": ["PDF to Word", "PDF to Excel", "PDF to PowerPoint", "PDF to Images"],
+    "To PDF": ["Word to PDF", "Image to PDF"],
+    "Image & Format": ["JPG to PNG", "PNG to JPG"],
+  },
+  "Image Tools": {
+    "Photo & Documents": ["Passport Photo Maker"],
+    "Image Conversion": ["JPG to PNG", "PNG to JPG"],
+    Optimization: ["Image Compressor"],
+  },
+  "AI Tools": {
+    "Understand Documents": ["OCR", "Chat with PDF"],
+    "Create & Analyze": ["AI PDF Summarizer"],
+    Automation: [],
+  },
+  "Business Tools": {
+    "Business Documents": ["Invoice Generator", "Quotation Generator"],
+    Generators: [],
+    "Coming Next": [],
+  },
+};
+
 export function Header() {
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [openMenu, setOpenMenu] = useState<MenuItem | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -73,59 +110,91 @@ export function Header() {
                 </button>
 
                 {openMenu === category && (
-                  <div className="absolute left-1/2 top-[58px] w-[min(820px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
-                    <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-4">
-                      <div>
-                        <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-blue-600">
-                          MakeUdocs
-                        </p>
-                        <h2 className="mt-1 text-lg font-extrabold text-zinc-950">
-                          {category}
-                        </h2>
+                  <div className="absolute left-1/2 top-[58px] w-[min(940px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl">
+                    <div className="flex items-center justify-between border-b border-zinc-100 bg-zinc-50/70 px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-base font-bold text-blue-600">
+                          {iconByCategory[category]}
+                        </span>
+                        <div>
+                          <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-blue-600">
+                            MakeUdocs
+                          </p>
+                          <h2 className="mt-0.5 text-lg font-extrabold text-zinc-950">
+                            {category}
+                          </h2>
+                        </div>
                       </div>
                       <Link
                         href="/tools"
                         onClick={() => setOpenMenu(null)}
-                        className="text-xs font-extrabold text-blue-600 hover:underline"
+                        className="rounded-lg px-3 py-2 text-xs font-extrabold text-blue-600 transition hover:bg-blue-50"
                       >
                         View all tools →
                       </Link>
                     </div>
 
-                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                      {megaMenuGroups[category].map((name) => {
-                        const tool = getTool(name);
-                        if (!tool) return null;
-                        const available = tool.status === "available";
+                    <div className="grid grid-cols-3 divide-x divide-zinc-100 px-2 py-5">
+                      {sectionLabels[category].map((section) => (
+                        <div key={section} className="px-4 first:pl-4 last:pr-4">
+                          <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.14em] text-zinc-400">
+                            {section}
+                          </p>
+                          <div className="space-y-1">
+                            {sectionAssignments[category][section].map((name) => {
+                              const tool = getTool(name);
+                              if (!tool) return null;
+                              const available = tool.status === "available";
 
-                        return (
-                          <Link
-                            key={tool.name}
-                            href={available ? tool.href : "/tools"}
-                            onClick={() => setOpenMenu(null)}
-                            className="group rounded-xl border border-transparent p-3 transition hover:border-blue-100 hover:bg-blue-50/70"
-                          >
-                            <div className="flex items-start gap-3">
-                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-sm font-bold text-zinc-600 transition group-hover:bg-white group-hover:text-blue-600">
-                                {iconByCategory[category]}
-                              </span>
-                              <span className="min-w-0">
-                                <span className="flex items-center gap-2 text-sm font-extrabold text-zinc-900 group-hover:text-blue-600">
-                                  {tool.name}
-                                  {!available && (
-                                    <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-zinc-500">
-                                      Soon
+                              if (!available) {
+                                return (
+                                  <div
+                                    key={tool.name}
+                                    className="flex items-center gap-3 rounded-xl p-2.5 opacity-70"
+                                  >
+                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500">
+                                      {iconByCategory[category]}
                                     </span>
-                                  )}
-                                </span>
-                                <span className="mt-1 block text-xs leading-5 text-zinc-500">
-                                  {tool.description}
-                                </span>
-                              </span>
-                            </div>
-                          </Link>
-                        );
-                      })}
+                                    <span className="min-w-0">
+                                      <span className="block text-sm font-extrabold text-zinc-700">
+                                        {tool.name}
+                                      </span>
+                                      <span className="mt-0.5 block text-[11px] text-zinc-400">
+                                        Coming soon
+                                      </span>
+                                    </span>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <Link
+                                  key={tool.name}
+                                  href={tool.href}
+                                  onClick={() => setOpenMenu(null)}
+                                  className="group flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-blue-50"
+                                >
+                                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500 transition group-hover:bg-white group-hover:text-blue-600">
+                                    {iconByCategory[category]}
+                                  </span>
+                                  <span className="min-w-0">
+                                    <span className="block text-sm font-extrabold text-zinc-800 group-hover:text-blue-600">
+                                      {tool.name}
+                                    </span>
+                                    <span className="mt-0.5 block truncate text-[11px] text-zinc-400">
+                                      {tool.description}
+                                    </span>
+                                  </span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="border-t border-zinc-100 bg-zinc-50/60 px-6 py-3 text-center text-[11px] text-zinc-500">
+                      More tools are being added to MakeUdocs — always free to use.
                     </div>
                   </div>
                 )}
@@ -164,35 +233,40 @@ export function Header() {
             <Link
               href="/tools"
               onClick={() => setMobileOpen(false)}
-              className="block rounded-xl px-3 py-3 text-sm font-extrabold text-blue-600 hover:bg-blue-50"
+              className="block rounded-xl bg-blue-50 px-3 py-3 text-sm font-extrabold text-blue-600"
             >
               All Tools →
             </Link>
 
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {menuItems.map((category) => (
-                <details key={category} className="group rounded-xl border border-zinc-200">
+                <details key={category} className="group rounded-xl border border-zinc-200 bg-white">
                   <summary className="cursor-pointer list-none px-3 py-3 text-sm font-extrabold text-zinc-800">
                     <span className="mr-2 text-blue-600">{iconByCategory[category]}</span>
                     {category}
-                    <span className="float-right text-zinc-400 group-open:rotate-180">⌄</span>
+                    <span className="float-right text-zinc-400 transition group-open:rotate-180">⌄</span>
                   </summary>
                   <div className="border-t border-zinc-100 px-3 pb-3 pt-2">
-                    {megaMenuGroups[category].map((name) => {
+                    {sectionLabels[category].flatMap((section) => sectionAssignments[category][section]).map((name) => {
                       const tool = getTool(name);
                       if (!tool) return null;
                       const available = tool.status === "available";
 
-                      return (
+                      return available ? (
                         <Link
                           key={tool.name}
-                          href={available ? tool.href : "/tools"}
+                          href={tool.href}
                           onClick={() => setMobileOpen(false)}
                           className="flex items-center justify-between rounded-lg px-2 py-2 text-sm text-zinc-600 hover:bg-zinc-50 hover:text-blue-600"
                         >
                           <span>{tool.name}</span>
-                          {!available && <span className="text-[10px] font-bold text-zinc-400">SOON</span>}
+                          <span className="text-blue-500">→</span>
                         </Link>
+                      ) : (
+                        <div key={tool.name} className="flex items-center justify-between rounded-lg px-2 py-2 text-sm text-zinc-400">
+                          <span>{tool.name}</span>
+                          <span className="text-[10px] font-bold">SOON</span>
+                        </div>
                       );
                     })}
                   </div>
