@@ -71,9 +71,14 @@ function cleanOcrText(value: string) {
 }
 
 function isUsefulWord(value: string) {
-  // Keep Latin, numbers, Telugu/Hindi Unicode and common punctuation, while
-  // dropping isolated OCR artifacts such as pipes, icons and random marks.
   return /[A-Za-z0-9\u0900-\u097F\u0C00-\u0C7F]/u.test(value);
+}
+
+function removeRepeatedWords(value: string) {
+  return value
+    .replace(/\b([A-Za-z]{2,})\1\b/gi, "$1")
+    .replace(/\b([A-Za-z]{2,})\s+\1\b/gi, "$1")
+    .replace(/\b([A-Za-z]{2,})\1(?=\s|[,.!?;:]|$)/gi, "$1");
 }
 
 function structuredReadingOrder(data: OcrResult) {
@@ -91,7 +96,7 @@ function structuredReadingOrder(data: OcrResult) {
     }))
     .sort((a, b) => a.cy - b.cy || a.x0 - b.x0);
 
-  if (!words.length) return cleanOcrText(data.text || "");
+  if (!words.length) return removeRepeatedWords(cleanOcrText(data.text || ""));
 
   const lines: typeof words[] = [];
   for (const word of words) {
@@ -115,15 +120,14 @@ function structuredReadingOrder(data: OcrResult) {
     const height = Math.max(1, bottom - top);
     const gap = top - previousBottom;
     const paragraphBreak = previousBottom > -Infinity && gap > Math.max(previousHeight * 1.35, height * 1.35);
+    const totalChars = line.reduce((sum, word) => sum + word.text.replace(/\s/g, "").length, 0);
+    const totalWidth = line.reduce((sum, word) => sum + (word.x1 - word.x0), 0);
+    const avgCharWidth = Math.max(2, totalWidth / Math.max(1, totalChars));
     let lineText = "";
-    let lastRight = 0;
-    let avgCharWidth = 0;
-    let charCount = 0;
-    for (const word of line) { avgCharWidth += word.x1 - word.x0; charCount++; }
-    avgCharWidth = Math.max(8, avgCharWidth / Math.max(1, charCount * 4));
+    let lastRight = -Infinity;
     for (const word of line) {
-      const gapX = word.x0 - lastRight;
-      const needsSpace = lineText.length > 0 && gapX > avgCharWidth * 0.55;
+      const gapX = lastRight === -Infinity ? 0 : word.x0 - lastRight;
+      const needsSpace = lineText.length > 0 && gapX > avgCharWidth * 0.28;
       lineText += `${needsSpace ? " " : ""}${word.text}`;
       lastRight = word.x1;
     }
@@ -132,7 +136,7 @@ function structuredReadingOrder(data: OcrResult) {
     previousBottom = bottom;
     previousHeight = height;
   }
-  return cleanOcrText(rendered.join("\n"));
+  return removeRepeatedWords(cleanOcrText(rendered.join("\n")));
 }
 
 export default function OcrPage() {
@@ -186,7 +190,7 @@ export default function OcrPage() {
         const best = candidates[0];
         setText(best.text || best.rawText);
         setConfidence(best.confidence);
-        setStatus("Text extracted with layout-aware reading order and noise filtering.");
+        setStatus("Text extracted with improved spacing and layout-aware ordering.");
       }
       setProgress(100);
     } catch (err) {
@@ -205,17 +209,16 @@ export default function OcrPage() {
 
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-8 text-zinc-900 sm:px-6 sm:py-12"><div className="mx-auto max-w-6xl">
-      <div className="mx-auto max-w-3xl text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-3xl shadow-sm">🔎</div><p className="mt-5 text-xs font-extrabold uppercase tracking-[.2em] text-blue-600">MakeUdocs AI Tools</p><h1 className="mt-3 text-4xl font-extrabold tracking-tight text-zinc-950 sm:text-5xl">OCR</h1><p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-500">Extract text from images with layout-aware recognition directly in your browser. Nothing is uploaded to MakeUdocs.</p></div>
+      <div className="mx-auto max-w-3xl text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-3xl shadow-sm">🔎</div><p className="mt-5 text-xs font-extrabold uppercase tracking-[.2em] text-blue-600">MakeUdocs AI Tools</p><h1 className="mt-3 text-4xl font-extrabold tracking-tight text-zinc-950 sm:text-5xl">OCR</h1><p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-500">Extract text from images with improved layout-aware recognition directly in your browser. Nothing is uploaded to MakeUdocs.</p></div>
       <section className="mt-9 rounded-[28px] border border-zinc-200 bg-white p-5 shadow-[0_24px_60px_rgba(15,23,42,.07)] sm:p-7">
         {!file ? <label onDragOver={(e)=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={(e)=>{e.preventDefault();setDragging(false);choose(e.dataTransfer.files?.[0])}} className={`flex min-h-[330px] cursor-pointer flex-col items-center justify-center rounded-[22px] border-2 border-dashed px-6 text-center transition ${dragging?"border-blue-500 bg-blue-50":"border-zinc-300 bg-gradient-to-b from-white to-slate-50 hover:border-blue-300"}`}><input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e)=>choose(e.target.files?.[0])}/><span className="flex h-20 w-20 items-center justify-center rounded-[24px] bg-blue-50 text-4xl shadow-sm">📄</span><h2 className="mt-6 text-xl font-extrabold">Drop an image here</h2><p className="mt-2 text-sm text-zinc-500">JPG, PNG, WebP and other browser-supported images</p><span className="mt-6 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-extrabold text-white shadow-lg">Choose Image →</span><p className="mt-4 text-xs font-semibold text-zinc-400">Free · Browser-local OCR</p></label> : <div>
           <div className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><p className="truncate text-sm font-extrabold">{file.name}</p><p className="mt-1 text-xs text-zinc-500">{(file.size/1024/1024).toFixed(2)} MB</p></div><button type="button" onClick={reset} disabled={busy} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-extrabold shadow-sm">Choose another</button></div>
           <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_360px]"><div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 p-5"><img src={preview} alt="OCR source preview" className="mx-auto max-h-[600px] max-w-full rounded-lg object-contain shadow-xl" /></div>
-            <aside className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5"><p className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">OCR settings</p><label className="mt-4 block text-xs font-extrabold">Language<select value={language} onChange={(e)=>setLanguage(e.target.value)} disabled={busy} className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 text-sm font-bold outline-none focus:border-blue-500"><option value="eng">English</option><option value="hin">Hindi</option><option value="tel">Telugu</option></select></label><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs leading-5 text-blue-800"><strong>Layout-aware mode:</strong> OCR words are filtered by confidence and rebuilt using their detected page positions, helping posters and marketing graphics read more naturally.</div><button type="button" onClick={runOcr} disabled={busy} className="mt-5 w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg disabled:opacity-60">{busy?`Extracting ${progress}%…`:"Extract Text →"}</button>{busy&&<div className="mt-4"><div className="h-2 overflow-hidden rounded-full bg-zinc-200"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${progress}%`}}/></div><p className="mt-2 text-xs text-zinc-500">{status || "Processing image…"}</p></div>}{!busy&&status&&<p className="mt-3 text-xs font-semibold text-emerald-700">✓ {status}</p>}{confidence!==null&&<div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4"><p className="text-xs font-bold text-blue-600">OCR confidence</p><p className="mt-1 text-lg font-extrabold">{Math.round(confidence)}%</p></div>}</aside></div>
-          {text&&<div className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">Extracted text</p><p className="mt-1 text-xs text-zinc-400">Review the result before using it.</p></div><div className="flex gap-2"><button type="button" onClick={copyText} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-extrabold shadow-sm">Copy</button><button type="button" onClick={downloadText} className="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm">Download TXT</button></div></div><textarea value={text} onChange={(e)=>setText(e.target.value)} className="mt-4 min-h-[260px] w-full resize-y rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm leading-6 text-zinc-800 outline-none focus:border-blue-500" spellCheck={false}/></div>}
+            <aside className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5"><p className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">OCR settings</p><label className="mt-4 block text-xs font-extrabold">Language<select value={language} onChange={(e)=>setLanguage(e.target.value)} disabled={busy} className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 text-sm font-bold outline-none focus:border-blue-500"><option value="eng">English</option><option value="hin">Hindi</option><option value="tel">Telugu</option></select></label><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs leading-5 text-blue-800"><strong>Improved layout mode:</strong> words are filtered by confidence, grouped by position, spaced using their detected widths, and repeated OCR tokens are cleaned.</div><button type="button" onClick={runOcr} disabled={busy} className="mt-5 w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg disabled:opacity-60">{busy?`Extracting ${progress}%…`:"Extract Text →"}</button>{busy&&<div className="mt-4"><div className="h-2 overflow-hidden rounded-full bg-zinc-200"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${progress}%`}}/></div><p className="mt-2 text-xs text-zinc-500">{status||"Processing image…"}</p></div>}{!busy&&status&&<p className="mt-3 text-xs font-semibold text-emerald-700">✓ {status}</p>}{confidence!==null&&<div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4"><p className="text-xs font-bold text-blue-600">OCR confidence</p><p className="mt-1 text-lg font-extrabold">{Math.round(confidence)}%</p></div>}</aside></div>{text&&<div className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">Extracted text</p><p className="mt-1 text-xs text-zinc-400">Review the result before using it.</p></div><div className="flex gap-2"><button type="button" onClick={copyText} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-extrabold shadow-sm">Copy</button><button type="button" onClick={downloadText} className="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm">Download TXT</button></div></div><textarea value={text} onChange={(e)=>setText(e.target.value)} className="mt-4 min-h-[260px] w-full resize-y rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm leading-6 text-zinc-800 outline-none focus:border-blue-500" spellCheck={false}/></div>}
         </div>}
         {error&&<div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700">{error}</div>}
       </section>
-      <section className="mt-6 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">📝</span><h3 className="mt-3 text-sm font-extrabold">Extract text</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Turn text in photos and scanned images into editable text.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">✨</span><h3 className="mt-3 text-sm font-extrabold">Layout-aware recognition</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Use detected word positions to reduce random symbols and improve reading order.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">🔒</span><h3 className="mt-3 text-sm font-extrabold">Private by design</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Your image is processed in your browser rather than uploaded to MakeUdocs.</p></div></section>
+      <section className="mt-6 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">📝</span><h3 className="mt-3 text-sm font-extrabold">Extract text</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Turn text in photos and scanned images into editable text.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">✨</span><h3 className="mt-3 text-sm font-extrabold">Improved recognition</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Upscaling, contrast processing, layout ordering, and duplicate filtering help with complex images.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">🔒</span><h3 className="mt-3 text-sm font-extrabold">Private by design</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Your image is processed in your browser rather than uploaded to MakeUdocs.</p></div></section>
     </div></main>
   );
 }
