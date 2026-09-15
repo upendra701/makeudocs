@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy – MakeUdocs",
+  description:
+    "Read the MakeUdocs privacy policy covering files, support messages, technical information, cookies and third-party services.",
+  alternates: {
+    canonical: "https://makeudocs.com/privacy",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function PrivacyPage() {
   return (
