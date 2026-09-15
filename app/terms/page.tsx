@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Terms of Use – MakeUdocs",
+  description:
+    "Read the MakeUdocs Terms of Use for our free browser-based document and photo utilities.",
+  alternates: {
+    canonical: "https://makeudocs.com/terms",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function TermsPage() {
   return (
