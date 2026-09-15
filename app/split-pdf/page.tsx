@@ -57,7 +57,9 @@ export default function SplitPdfPage() {
         const copied = await output.copyPages(source, indexes);
         copied.forEach((page) => output.addPage(page));
         const bytes = await output.save();
-        const blob = new Blob([bytes], { type: "application/pdf" });
+        const safeBuffer = new ArrayBuffer(bytes.byteLength);
+        new Uint8Array(safeBuffer).set(bytes);
+        const blob = new Blob([safeBuffer], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = url;
