@@ -18,8 +18,7 @@ export const tools: Tool[] = [
   { name: "Rotate PDF", description: "Rotate PDF pages and save a corrected document.", href: "/rotate-pdf", category: "PDF Tools", status: "available" },
   { name: "Passport Photo Maker", description: "Create passport-size photos for common document needs.", href: "/passport-photo", category: "Image Tools", status: "available" },
   { name: "PDF to Word", description: "Convert PDF documents into editable Word files.", href: "/pdf-to-word", category: "Convert", status: "available" },
-  { name: "JPG to PNG", description: "Convert JPG images to PNG format in your browser.", href: "/jpg-to-png", category: "Image Tools", status: "available" },
-  { name: "Background Eraser", description: "Remove image backgrounds and export transparent PNGs in your browser.", href: "/background-eraser", category: "Image Tools", status: "available" },
+  { name: "JPG to PNG", description: "Convert JPG images to PNG format with optional background removal and manual erase/restore tools.", href: "/jpg-to-png", category: "Image Tools", status: "available" },
   { name: "Edit PDF", description: "Edit PDF text using detected font styling and add text directly on pages.", href: "/edit-pdf", category: "PDF Tools", status: "coming-soon" },
   { name: "PDF to Excel", description: "Extract useful PDF tables into Excel format.", href: "/pdf-to-excel", category: "Convert", status: "coming-soon" },
   { name: "PDF to PowerPoint", description: "Convert PDF content into presentation slides.", href: "/pdf-to-ppt", category: "Convert", status: "coming-soon" },
@@ -38,7 +37,7 @@ export const comingSoonTools = tools.filter((tool) => tool.status === "coming-so
 export const megaMenuGroups = {
   "PDF Tools": ["Edit PDF", "Merge PDF", "Split PDF", "Compress PDF", "Rotate PDF"],
   Convert: ["Image to PDF", "Word to PDF", "PDF to Images", "PDF to Word", "PDF to Excel", "PDF to PowerPoint"],
-  "Image Tools": ["Passport Photo Maker", "JPG to PNG", "Background Eraser", "PNG to JPG", "Image Compressor"],
+  "Image Tools": ["Passport Photo Maker", "JPG to PNG", "PNG to JPG", "Image Compressor"],
   "AI Tools": ["OCR", "Chat with PDF", "AI PDF Summarizer"],
   "Business Tools": ["Invoice Generator", "Quotation Generator"],
 } as const;
