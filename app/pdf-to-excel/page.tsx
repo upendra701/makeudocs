@@ -69,8 +69,6 @@ const extractPageRows = (items: Array<{ str: string; transform: number[]; width?
     for (const token of [...line].sort((a, b) => a.x - b.x)) {
       const previous = cells[cells.length - 1];
       const gap = previous ? token.x - previous.endX : Infinity;
-      // Words inside one cell are usually separated by only a few points.
-      // Real table columns have a much larger horizontal gap.
       const cellGap = Math.max(8, median(heights) * 0.8);
       if (previous && gap < cellGap) {
         previous.text = `${previous.text} ${token.text}`.trim();
@@ -80,14 +78,11 @@ const extractPageRows = (items: Array<{ str: string; transform: number[]; width?
       }
     }
     return cells;
-  }).sort((a, b) => b[0].y - a[0].y);
+  });
 
   const multiCellLines = normalizedLines.filter((line) => line.length >= 2);
   if (!multiCellLines.length) return normalizedLines.map((line) => [line.map((cell) => cell.text).join(" ")]);
 
-  // Use the most common number of cells as the table's column count. This
-  // removes page titles/footers and, importantly, avoids inventing columns
-  // from differently positioned header text such as "Unit Price".
   const counts = multiCellLines.map((line) => line.length);
   const frequencies = new Map<number, number>();
   for (const count of counts) frequencies.set(count, (frequencies.get(count) ?? 0) + 1);
