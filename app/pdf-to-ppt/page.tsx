@@ -14,13 +14,13 @@ type PptxPresentation = {
 
 declare global {
   interface Window {
-    pptxgen?: new () => PptxPresentation;
+    PptxGenJS?: new () => PptxPresentation;
   }
 }
 
 const loadPptxGen = async () => {
   if (typeof window === "undefined") throw new Error("PowerPoint export is only available in a browser.");
-  if (window.pptxgen) return window.pptxgen;
+  if (window.PptxGenJS) return window.PptxGenJS;
   await new Promise<void>((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>('script[data-makeudocs-pptxgen]');
     if (existing) {
@@ -29,15 +29,15 @@ const loadPptxGen = async () => {
       return;
     }
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.min.js";
+    script.src = "https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs/dist/pptxgen.bundle.js";
     script.async = true;
     script.dataset.makeudocsPptxgen = "true";
     script.onload = () => resolve();
     script.onerror = () => reject(new Error("PowerPoint export library could not be loaded."));
     document.head.appendChild(script);
   });
-  if (!window.pptxgen) throw new Error("PowerPoint export library is unavailable.");
-  return window.pptxgen;
+  if (!window.PptxGenJS) throw new Error("PowerPoint export library is unavailable.");
+  return window.PptxGenJS;
 };
 
 const canvasToDataUrl = async (canvas: HTMLCanvasElement) => {
