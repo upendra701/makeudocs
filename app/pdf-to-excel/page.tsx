@@ -6,6 +6,7 @@ type Cell = string;
 type Row = Cell[];
 type SheetPreview = { page: number; rows: Row[] };
 type PdfToken = { text: string; x: number; y: number; width: number; height: number };
+type PdfCell = { x: number; text: string; endX: number };
 
 declare global {
   interface Window {
@@ -54,6 +55,7 @@ const extractPageRows = (items: Array<{ str: string; transform: number[]; width?
     height: Math.abs(Number(item.transform?.[0] ?? 0)) || 10,
   })).filter((item) => item.text);
   if (!tokens.length) return [];
+
   const heights = tokens.map((item) => item.height);
   const lineTolerance = Math.max(3, median(heights) * 0.65);
   const lines: PdfToken[][] = [];
@@ -61,33 +63,53 @@ const extractPageRows = (items: Array<{ str: string; transform: number[]; width?
     const line = lines.find((candidate) => Math.abs(candidate[0].y - token.y) <= lineTolerance);
     if (line) line.push(token); else lines.push([token]);
   }
-  const normalizedLines = lines.map((line) => [...line].sort((a, b) => a.x - b.x)).sort((a, b) => b[0].y - a[0].y).map((line) => {
-    const cells: Array<{ x: number; text: string; endX: number }> = [];
-    for (const token of line) {
+
+  const normalizedLines: PdfCell[][] = lines.map((line) => {
+    const cells: PdfCell[] = [];
+    for (const token of [...line].sort((a, b) => a.x - b.x)) {
       const previous = cells[cells.length - 1];
       const gap = previous ? token.x - previous.endX : Infinity;
-      if (previous && gap < Math.max(10, token.width * 0.55)) {
+      // Words inside one cell are usually separated by only a few points.
+      // Real table columns have a much larger horizontal gap.
+      const cellGap = Math.max(8, median(heights) * 0.8);
+      if (previous && gap < cellGap) {
         previous.text = `${previous.text} ${token.text}`.trim();
         previous.endX = Math.max(previous.endX, token.x + token.width);
-      } else cells.push({ x: token.x, text: token.text, endX: token.x + token.width });
+      } else {
+        cells.push({ x: token.x, text: token.text, endX: token.x + token.width });
+      }
     }
     return cells;
-  });
-  const maxColumns = Math.max(...normalizedLines.map((line) => line.length));
-  if (maxColumns <= 1) return normalizedLines.map((line) => [line.map((cell) => cell.text).join(" ")]);
-  const xPositions = normalizedLines.flatMap((line) => line.map((cell) => cell.x)).sort((a, b) => a - b);
-  const clusters: number[] = [];
-  const xTolerance = Math.max(14, median(heights) * 1.6);
-  for (const x of xPositions) {
-    const last = clusters[clusters.length - 1];
-    if (last === undefined || Math.abs(x - last) > xTolerance) clusters.push(x);
-    else clusters[clusters.length - 1] = (last + x) / 2;
-  }
-  return normalizedLines.map((line) => {
-    const row = Array.from({ length: clusters.length }, () => "");
+  }).sort((a, b) => b[0].y - a[0].y);
+
+  const multiCellLines = normalizedLines.filter((line) => line.length >= 2);
+  if (!multiCellLines.length) return normalizedLines.map((line) => [line.map((cell) => cell.text).join(" ")]);
+
+  // Use the most common number of cells as the table's column count. This
+  // removes page titles/footers and, importantly, avoids inventing columns
+  // from differently positioned header text such as "Unit Price".
+  const counts = multiCellLines.map((line) => line.length);
+  const frequencies = new Map<number, number>();
+  for (const count of counts) frequencies.set(count, (frequencies.get(count) ?? 0) + 1);
+  const expectedColumns = [...frequencies.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0]?.[0] ?? 0;
+  if (expectedColumns < 2) return normalizedLines.map((line) => [line.map((cell) => cell.text).join(" ")]);
+
+  const tableLines = normalizedLines.filter((line) => line.length === expectedColumns || line.length === expectedColumns - 1);
+  if (!tableLines.length) return [];
+
+  const fullRows = tableLines.filter((line) => line.length === expectedColumns);
+  const anchors = Array.from({ length: expectedColumns }, (_, index) => median(fullRows.map((line) => line[index]?.x ?? 0)));
+
+  return tableLines.map((line) => {
+    if (line.length === expectedColumns) return line.map((cell) => cleanText(cell.text));
+    const row = Array.from({ length: expectedColumns }, () => "");
     for (const cell of line) {
-      let nearest = 0; let distance = Infinity;
-      clusters.forEach((cluster, index) => { const d = Math.abs(cluster - cell.x); if (d < distance) { distance = d; nearest = index; } });
+      let nearest = 0;
+      let distance = Infinity;
+      anchors.forEach((anchor, index) => {
+        const d = Math.abs(anchor - cell.x);
+        if (d < distance) { distance = d; nearest = index; }
+      });
       row[nearest] = row[nearest] ? `${row[nearest]} ${cell.text}` : cell.text;
     }
     return row.map(cleanText);
@@ -130,9 +152,8 @@ export default function PdfToExcelPage() {
       }
       if (!pages.length) throw new Error("No selectable text or table data was found in this PDF. Scanned PDFs need OCR before their tables can be extracted.");
       setPreview(pages);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The PDF could not be processed."); setPreview([]);
-    } finally { setIsExtracting(false); }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "The PDF could not be processed."); setPreview([]); }
+    finally { setIsExtracting(false); }
   };
 
   const exportExcel = async () => {
@@ -141,8 +162,7 @@ export default function PdfToExcelPage() {
     try {
       const XLSX = await loadXlsx(); const workbook = XLSX.utils.book_new();
       preview.forEach((page, index) => {
-        const rows = page.rows.map((row) => row.map((cell) => cell || ""));
-        const sheet = XLSX.utils.aoa_to_sheet(rows);
+        const sheet = XLSX.utils.aoa_to_sheet(page.rows.map((row) => row.map((cell) => cell || "")));
         XLSX.utils.book_append_sheet(workbook, sheet, `Page ${index + 1}`.slice(0, 31));
       });
       const base = file?.name.replace(/\.pdf$/i, "") || "makeudocs-pdf";
