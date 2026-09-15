@@ -7,7 +7,6 @@ type OcrOptions = { logger?: (message: { status?: string; progress?: number }) =
 type TesseractApi = { recognize: (image: File | HTMLCanvasElement, language: string, options?: OcrOptions) => Promise<{ data: OcrResult }> };
 
 declare global { interface Window { Tesseract?: TesseractApi; } }
-
 let tesseractPromise: Promise<TesseractApi> | null = null;
 
 function loadTesseract() {
@@ -32,26 +31,31 @@ function loadTesseract() {
   return tesseractPromise;
 }
 
-async function buildOcrCanvas(file: File) {
+async function buildOcrCanvases(file: File) {
   const bitmap = await createImageBitmap(file);
   const sourceW = bitmap.width;
   const sourceH = bitmap.height;
-  // OCR engines are much more reliable when small text is presented at a
-  // larger working resolution. Keep the longest edge reasonable for browsers.
-  const scale = Math.min(3, Math.max(1.5, 2200 / Math.max(sourceW, sourceH)));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(sourceW * scale));
-  canvas.height = Math.max(1, Math.round(sourceH * scale));
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) { bitmap.close(); throw new Error("Your browser could not create an OCR canvas."); }
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const scale = Math.min(3, Math.max(1.5, 2400 / Math.max(sourceW, sourceH)));
+  const makeCanvas = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(sourceW * scale));
+    canvas.height = Math.max(1, Math.round(sourceH * scale));
+    return canvas;
+  };
+  const original = makeCanvas();
+  const enhanced = makeCanvas();
+  const originalCtx = original.getContext("2d");
+  const enhancedCtx = enhanced.getContext("2d", { willReadFrequently: true });
+  if (!originalCtx || !enhancedCtx) { bitmap.close(); throw new Error("Your browser could not create an OCR canvas."); }
+  originalCtx.imageSmoothingEnabled = true;
+  originalCtx.imageSmoothingQuality = "high";
+  enhancedCtx.imageSmoothingEnabled = true;
+  enhancedCtx.imageSmoothingQuality = "high";
+  originalCtx.drawImage(bitmap, 0, 0, original.width, original.height);
+  enhancedCtx.drawImage(bitmap, 0, 0, enhanced.width, enhanced.height);
   bitmap.close();
 
-  // Preserve the original luminance but increase contrast. This is safer for
-  // posters and mixed-color text than hard thresholding everything to black/white.
-  const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const image = enhancedCtx.getImageData(0, 0, enhanced.width, enhanced.height);
   const data = image.data;
   for (let i = 0; i < data.length; i += 4) {
     const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
@@ -60,8 +64,16 @@ async function buildOcrCanvas(file: File) {
     data[i + 1] = contrast;
     data[i + 2] = contrast;
   }
-  ctx.putImageData(image, 0, 0);
-  return canvas;
+  enhancedCtx.putImageData(image, 0, 0);
+  return { original, enhanced };
+}
+
+function cleanOcrText(value: string) {
+  return value
+    .replace(/[\t ]+$/gm, "")
+    .replace(/^\s+$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 export default function OcrPage() {
@@ -86,25 +98,42 @@ export default function OcrPage() {
 
   const runOcr = async () => {
     if (!file) return;
-    setBusy(true); setError(""); setText(""); setConfidence(null); setProgress(0); setStatus("Preparing image for higher accuracy…");
+    setBusy(true); setError(""); setText(""); setConfidence(null); setProgress(0); setStatus("Preparing two OCR passes for better accuracy…");
     try {
       const tesseract = await loadTesseract();
-      const canvas = await buildOcrCanvas(file);
-      setStatus("Running enhanced OCR…");
-      const result = await tesseract.recognize(canvas, language, {
-        config: {
-          tessedit_pageseg_mode: "11",
-          preserve_interword_spaces: "1",
-        },
+      const { original, enhanced } = await buildOcrCanvases(file);
+      let lastProgress = 0;
+      const recognize = (canvas: HTMLCanvasElement, label: string, offset: number) => tesseract.recognize(canvas, language, {
+        config: { tessedit_pageseg_mode: "11", preserve_interword_spaces: "1" },
         logger: (message) => {
-          if (typeof message.progress === "number") setProgress(Math.round(message.progress * 100));
-          if (message.status) setStatus(message.status.replace(/_/g, " "));
+          if (typeof message.progress === "number") {
+            const overall = Math.round(offset + message.progress * 50);
+            if (overall > lastProgress) { lastProgress = overall; setProgress(overall); }
+          }
+          if (message.status) setStatus(`${label}: ${message.status.replace(/_/g, " ")}`);
         },
       });
-      const extracted = result.data.text.trim();
-      setText(extracted || "No readable text was detected. Try a sharper image or crop closer to the text.");
-      setConfidence(typeof result.data.confidence === "number" ? result.data.confidence : null);
-      setProgress(100); setStatus(extracted ? "Text extracted successfully." : "No readable text detected.");
+      const [first, second] = await Promise.all([
+        recognize(original, "Original pass", 0),
+        recognize(enhanced, "Enhanced pass", 50),
+      ]);
+      const candidates = [first.data, second.data]
+        .map((data) => ({ text: cleanOcrText(data.text || ""), confidence: typeof data.confidence === "number" ? data.confidence : 0 }))
+        .filter((candidate) => candidate.text.length > 0);
+      if (!candidates.length) {
+        setText("No readable text was detected. Try a sharper image, better lighting, or crop closer to the text.");
+        setConfidence(null);
+        setStatus("No readable text detected.");
+      } else {
+        // Confidence is the primary signal; when confidence is close, prefer
+        // the longer result because posters often contain many separate labels.
+        candidates.sort((a, b) => (b.confidence - a.confidence) * 10 + (b.text.length - a.text.length) / 1000);
+        const best = candidates[0];
+        setText(best.text);
+        setConfidence(best.confidence);
+        setStatus("Text extracted using the best of two recognition passes.");
+      }
+      setProgress(100);
     } catch (err) {
       setError(err instanceof Error ? err.message : "OCR could not process this image.");
       setStatus("");
@@ -121,17 +150,17 @@ export default function OcrPage() {
 
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-8 text-zinc-900 sm:px-6 sm:py-12"><div className="mx-auto max-w-6xl">
-      <div className="mx-auto max-w-3xl text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-3xl shadow-sm">🔎</div><p className="mt-5 text-xs font-extrabold uppercase tracking-[.2em] text-blue-600">MakeUdocs AI Tools</p><h1 className="mt-3 text-4xl font-extrabold tracking-tight text-zinc-950 sm:text-5xl">OCR</h1><p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-500">Extract text from images with enhanced preprocessing directly in your browser. Nothing is uploaded to MakeUdocs.</p></div>
+      <div className="mx-auto max-w-3xl text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-3xl shadow-sm">🔎</div><p className="mt-5 text-xs font-extrabold uppercase tracking-[.2em] text-blue-600">MakeUdocs AI Tools</p><h1 className="mt-3 text-4xl font-extrabold tracking-tight text-zinc-950 sm:text-5xl">OCR</h1><p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-500">Extract text from images with dual-pass recognition directly in your browser. Nothing is uploaded to MakeUdocs.</p></div>
       <section className="mt-9 rounded-[28px] border border-zinc-200 bg-white p-5 shadow-[0_24px_60px_rgba(15,23,42,.07)] sm:p-7">
         {!file ? <label onDragOver={(e)=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={(e)=>{e.preventDefault();setDragging(false);choose(e.dataTransfer.files?.[0])}} className={`flex min-h-[330px] cursor-pointer flex-col items-center justify-center rounded-[22px] border-2 border-dashed px-6 text-center transition ${dragging?"border-blue-500 bg-blue-50":"border-zinc-300 bg-gradient-to-b from-white to-slate-50 hover:border-blue-300"}`}><input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e)=>choose(e.target.files?.[0])}/><span className="flex h-20 w-20 items-center justify-center rounded-[24px] bg-blue-50 text-4xl shadow-sm">📄</span><h2 className="mt-6 text-xl font-extrabold">Drop an image here</h2><p className="mt-2 text-sm text-zinc-500">JPG, PNG, WebP and other browser-supported images</p><span className="mt-6 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-extrabold text-white shadow-lg">Choose Image →</span><p className="mt-4 text-xs font-semibold text-zinc-400">Free · Browser-local OCR</p></label> : <div>
           <div className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><p className="truncate text-sm font-extrabold">{file.name}</p><p className="mt-1 text-xs text-zinc-500">{(file.size/1024/1024).toFixed(2)} MB</p></div><button type="button" onClick={reset} disabled={busy} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-extrabold shadow-sm">Choose another</button></div>
           <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_360px]"><div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 p-5"><img src={preview} alt="OCR source preview" className="mx-auto max-h-[600px] max-w-full rounded-lg object-contain shadow-xl" /></div>
-            <aside className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5"><p className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">OCR settings</p><label className="mt-4 block text-xs font-extrabold">Language<select value={language} onChange={(e)=>setLanguage(e.target.value)} disabled={busy} className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 text-sm font-bold outline-none focus:border-blue-500"><option value="eng">English</option><option value="hin">Hindi</option><option value="tel">Telugu</option></select></label><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs leading-5 text-blue-800"><strong>Enhanced mode:</strong> the image is enlarged and contrast-adjusted before OCR to improve small or stylized text recognition.</div><button type="button" onClick={runOcr} disabled={busy} className="mt-5 w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg disabled:opacity-60">{busy?`Extracting ${progress}%…`:"Extract Text →"}</button>{busy&&<div className="mt-4"><div className="h-2 overflow-hidden rounded-full bg-zinc-200"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${progress}%`}}/></div><p className="mt-2 text-xs text-zinc-500">{status || "Processing image…"}</p></div>}{!busy&&status&&<p className="mt-3 text-xs font-semibold text-emerald-700">✓ {status}</p>}{confidence!==null&&<div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4"><p className="text-xs font-bold text-blue-600">OCR confidence</p><p className="mt-1 text-lg font-extrabold">{Math.round(confidence)}%</p></div>}</aside></div>
+            <aside className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5"><p className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">OCR settings</p><label className="mt-4 block text-xs font-extrabold">Language<select value={language} onChange={(e)=>setLanguage(e.target.value)} disabled={busy} className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 text-sm font-bold outline-none focus:border-blue-500"><option value="eng">English</option><option value="hin">Hindi</option><option value="tel">Telugu</option></select></label><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs leading-5 text-blue-800"><strong>Dual-pass mode:</strong> MakeUdocs checks both the original image and an enhanced version, then keeps the stronger OCR result.</div><button type="button" onClick={runOcr} disabled={busy} className="mt-5 w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg disabled:opacity-60">{busy?`Extracting ${progress}%…`:"Extract Text →"}</button>{busy&&<div className="mt-4"><div className="h-2 overflow-hidden rounded-full bg-zinc-200"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${progress}%`}}/></div><p className="mt-2 text-xs text-zinc-500">{status || "Processing image…"}</p></div>}{!busy&&status&&<p className="mt-3 text-xs font-semibold text-emerald-700">✓ {status}</p>}{confidence!==null&&<div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4"><p className="text-xs font-bold text-blue-600">OCR confidence</p><p className="mt-1 text-lg font-extrabold">{Math.round(confidence)}%</p></div>}</aside></div>
           {text&&<div className="mt-5 rounded-2xl border border-zinc-200 bg-white p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">Extracted text</p><p className="mt-1 text-xs text-zinc-400">Review the result before using it.</p></div><div className="flex gap-2"><button type="button" onClick={copyText} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-extrabold shadow-sm">Copy</button><button type="button" onClick={downloadText} className="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm">Download TXT</button></div></div><textarea value={text} onChange={(e)=>setText(e.target.value)} className="mt-4 min-h-[260px] w-full resize-y rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm leading-6 text-zinc-800 outline-none focus:border-blue-500" spellCheck={false}/></div>}
         </div>}
         {error&&<div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700">{error}</div>}
       </section>
-      <section className="mt-6 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">📝</span><h3 className="mt-3 text-sm font-extrabold">Extract text</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Turn text in photos and scanned images into editable text.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">✨</span><h3 className="mt-3 text-sm font-extrabold">Enhanced recognition</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Upscaling and contrast processing help with smaller text and busy images.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">🔒</span><h3 className="mt-3 text-sm font-extrabold">Private by design</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Your image is processed in your browser rather than uploaded to MakeUdocs.</p></div></section>
+      <section className="mt-6 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">📝</span><h3 className="mt-3 text-sm font-extrabold">Extract text</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Turn text in photos and scanned images into editable text.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">✨</span><h3 className="mt-3 text-sm font-extrabold">Dual-pass recognition</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Compare original and enhanced image processing to improve recognition across different designs.</p></div><div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><span className="text-xl">🔒</span><h3 className="mt-3 text-sm font-extrabold">Private by design</h3><p className="mt-1 text-xs leading-5 text-zinc-500">Your image is processed in your browser rather than uploaded to MakeUdocs.</p></div></section>
     </div></main>
   );
 }
