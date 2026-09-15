@@ -18,7 +18,7 @@ export const tools: Tool[] = [
   { name: "Rotate PDF", description: "Rotate PDF pages and save a corrected document.", href: "/rotate-pdf", category: "PDF Tools", status: "available" },
   { name: "Passport Photo Maker", description: "Create passport-size photos for common document needs.", href: "/passport-photo", category: "Image Tools", status: "available" },
   { name: "PDF to Word", description: "Convert PDF documents into editable Word files.", href: "/pdf-to-word", category: "Convert", status: "available" },
-  { name: "Edit PDF", description: "Edit PDF text using detected font styling and add text directly on pages.", href: "/edit-pdf", category: "PDF Tools", status: "available" },
+  { name: "Edit PDF", description: "Edit PDF text using detected font styling and add text directly on pages.", href: "/edit-pdf", category: "PDF Tools", status: "coming-soon" },
   { name: "PDF to Excel", description: "Extract useful PDF tables into Excel format.", href: "/pdf-to-excel", category: "Convert", status: "coming-soon" },
   { name: "PDF to PowerPoint", description: "Convert PDF content into presentation slides.", href: "/pdf-to-ppt", category: "Convert", status: "coming-soon" },
   { name: "JPG to PNG", description: "Convert JPG images to PNG format.", href: "/jpg-to-png", category: "Image Tools", status: "coming-soon" },
