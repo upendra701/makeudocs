@@ -22,7 +22,6 @@ export const tools: Tool[] = [
   { name: "PNG to JPG", description: "Convert PNG images to JPG with background color and quality controls.", href: "/png-to-jpg", category: "Image Tools", status: "available" },
   { name: "Image Compressor", description: "Reduce image file size, resize images, and choose JPG, WebP, or PNG output.", href: "/compress-image", category: "Image Tools", status: "available" },
   { name: "OCR", description: "Extract editable text from images and scanned documents in your browser.", href: "/ocr", category: "AI Tools", status: "available" },
-  { name: "Edit PDF", description: "Add and position text on PDF pages, with an option to cover existing text visually.", href: "/edit-pdf", category: "PDF Tools", status: "available" },
   { name: "PDF to Excel", description: "Extract useful PDF tables into Excel format.", href: "/pdf-to-excel", category: "Convert", status: "coming-soon" },
   { name: "PDF to PowerPoint", description: "Convert PDF content into presentation slides.", href: "/pdf-to-ppt", category: "Convert", status: "coming-soon" },
   { name: "Chat with PDF", description: "Ask questions and get answers from your documents.", href: "/chat-pdf", category: "AI Tools", status: "coming-soon" },
@@ -35,7 +34,7 @@ export const availableTools = tools.filter((tool) => tool.status === "available"
 export const comingSoonTools = tools.filter((tool) => tool.status === "coming-soon");
 
 export const megaMenuGroups = {
-  "PDF Tools": ["Edit PDF", "Merge PDF", "Split PDF", "Compress PDF", "Rotate PDF"],
+  "PDF Tools": ["Merge PDF", "Split PDF", "Compress PDF", "Rotate PDF"],
   Convert: ["Image to PDF", "Word to PDF", "PDF to Images", "PDF to Word", "PDF to Excel", "PDF to PowerPoint"],
   "Image Tools": ["Passport Photo Maker", "JPG to PNG", "PNG to JPG", "Image Compressor"],
   "AI Tools": ["OCR", "Chat with PDF", "AI PDF Summarizer"],
