@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Report an Issue – MakeUdocs",
+  description:
+    "Report a problem with a MakeUdocs document or photo tool and send details to our support team.",
+  alternates: {
+    canonical: "https://makeudocs.com/report-issue",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const tools = [
   "Image to PDF",
