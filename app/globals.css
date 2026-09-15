@@ -18,14 +18,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* The homepage previously rendered its own small header. The new global
-   navigation in app/components/Header.tsx replaces it. */
 main > header.border-b.border-zinc-100.bg-white {
   display: none;
 }
 
 /* -------------------------------------------------------------------------- */
-/* MakeUdocs premium tool system                                              */
+/* Shared MakeUdocs premium surface system                                   */
 /* -------------------------------------------------------------------------- */
 
 main.min-h-screen.bg-zinc-50 {
@@ -38,54 +36,15 @@ main.min-h-screen.bg-zinc-50 h1 {
   letter-spacing: -0.05em;
 }
 
-/* Primary upload controls */
-main.min-h-screen.bg-zinc-50 label.inline-flex.cursor-pointer,
-main.min-h-screen.bg-zinc-50 label span.rounded-xl.bg-blue-600,
-main.min-h-screen.bg-zinc-50 label span.rounded-xl.bg-blue-600[class*="px-6"] {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(37, 99, 235, 0.18);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
-  box-shadow:
-    0 12px 28px rgba(37, 99, 235, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  transform: translateY(0);
-  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
-}
-
-main.min-h-screen.bg-zinc-50 label.inline-flex.cursor-pointer::after {
-  content: "→";
-  margin-left: 10px;
-  font-size: 17px;
-  font-weight: 800;
-  transition: transform 180ms ease;
-}
-
-main.min-h-screen.bg-zinc-50 label.inline-flex.cursor-pointer:hover,
-main.min-h-screen.bg-zinc-50 label:hover span.rounded-xl.bg-blue-600 {
-  filter: brightness(1.04);
-  transform: translateY(-2px);
-  box-shadow:
-    0 17px 36px rgba(37, 99, 235, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24);
-}
-
-main.min-h-screen.bg-zinc-50 label.inline-flex.cursor-pointer:hover::after {
-  transform: translateX(4px);
-}
-
-/* Shared elevated sections */
 main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section,
 main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section {
-  border-color: rgba(226, 232, 240, 0.9);
+  border-color: rgba(226, 232, 240, 0.92);
   box-shadow:
     0 18px 50px rgba(15, 23, 42, 0.06),
     0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
-/* Premium controls across every current tool */
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl button,
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl button {
+main.min-h-screen.bg-zinc-50 button {
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
@@ -94,54 +53,75 @@ main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl button {
     background 160ms ease;
 }
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl button:not(:disabled):hover,
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl button:not(:disabled):hover {
+main.min-h-screen.bg-zinc-50 button:not(:disabled):hover {
   transform: translateY(-1px);
 }
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl button:not(:disabled):active,
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl button:not(:disabled):active {
+main.min-h-screen.bg-zinc-50 button:not(:disabled):active {
   transform: translateY(0) scale(0.985);
 }
 
-/* Main blue CTAs — Compress, Merge and other tool actions */
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl button[class*="bg-blue-600"],
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl button[class*="bg-blue-600"] {
+/* All primary blue actions */
+main.min-h-screen.bg-zinc-50 button[class*="bg-blue-600"],
+main.min-h-screen.bg-zinc-50 button[class*="bg-blue-500"] {
   border: 1px solid rgba(37, 99, 235, 0.16);
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
   box-shadow:
-    0 12px 28px rgba(37, 99, 235, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    0 12px 28px rgba(37, 99, 235, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl button[class*="bg-blue-600"]:hover:not(:disabled),
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl button[class*="bg-blue-600"]:hover:not(:disabled) {
+main.min-h-screen.bg-zinc-50 button[class*="bg-blue-600"]:hover:not(:disabled),
+main.min-h-screen.bg-zinc-50 button[class*="bg-blue-500"]:hover:not(:disabled) {
   filter: brightness(1.04);
   box-shadow:
-    0 17px 36px rgba(37, 99, 235, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    0 17px 36px rgba(37, 99, 235, 0.27),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
-/* File cards and selectable option cards */
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl section > div > div[class*="rounded-2xl"],
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl section article {
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+/* Upload labels / chooser surfaces */
+main.min-h-screen.bg-zinc-50 label.cursor-pointer {
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl section > div > div[class*="rounded-2xl"]:hover,
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl section article:hover {
-  border-color: #bfdbfe;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.075);
+main.min-h-screen.bg-zinc-50 label.cursor-pointer:hover {
+  border-color: #93c5fd;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(239, 246, 255, 0.95), transparent 62%),
+    #ffffff;
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.07);
+  transform: translateY(-1px);
 }
 
-/* Compress/merge result panels */
-main.min-h-screen.bg-zinc-50 section[class*="border-green"] {
+main.min-h-screen.bg-zinc-50 label.cursor-pointer span.rounded-xl.bg-blue-600 {
+  position: relative;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
   box-shadow:
-    0 18px 46px rgba(22, 101, 52, 0.07),
-    0 2px 8px rgba(15, 23, 42, 0.03);
+    0 12px 28px rgba(37, 99, 235, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
-/* Input polish */
+main.min-h-screen.bg-zinc-50 label.cursor-pointer span.rounded-xl.bg-blue-600::after {
+  content: "→";
+  margin-left: 10px;
+  font-weight: 800;
+  transition: transform 180ms ease;
+}
+
+main.min-h-screen.bg-zinc-50 label.cursor-pointer:hover span.rounded-xl.bg-blue-600::after {
+  display: inline-block;
+  transform: translateX(4px);
+}
+
+/* Generic file identity cards */
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl [class*="bg-zinc-50"].rounded-xl,
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl [class*="bg-zinc-50"].rounded-2xl {
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #f8fafc, #ffffff);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
 main.min-h-screen.bg-zinc-50 input[type="text"] {
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -151,7 +131,6 @@ main.min-h-screen.bg-zinc-50 input[type="text"]:focus {
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
 }
 
-/* Progress bars */
 main.min-h-screen.bg-zinc-50 div.h-2.overflow-hidden {
   min-height: 8px;
   background: #e2e8f0;
@@ -162,27 +141,149 @@ main.min-h-screen.bg-zinc-50 div.h-2.overflow-hidden > div {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Image → PDF workspace                                                       */
+/* COMPRESS PDF                                                                */
 /* -------------------------------------------------------------------------- */
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl section.rounded-3xl.border-zinc-200.bg-white {
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section:first-of-type {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section:first-of-type label {
+  min-height: 300px;
+  border-color: rgba(148, 163, 184, 0.62);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(239, 246, 255, 0.92), transparent 60%),
+    #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 8px 24px rgba(15, 23, 42, 0.035);
+}
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section:nth-of-type(2) > div.grid > button {
+  min-height: 145px;
+  border-color: #e2e8f0;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.035);
+}
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section:nth-of-type(2) > div.grid > button:hover:not(:disabled) {
+  border-color: #93c5fd;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.08);
+}
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl section[class*="border-green"] {
+  box-shadow:
+    0 18px 46px rgba(22, 101, 52, 0.07),
+    0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+/* -------------------------------------------------------------------------- */
+/* MERGE PDF                                                                  */
+/* -------------------------------------------------------------------------- */
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section:first-of-type label[for="merge-pdf-files"] {
+  min-height: 300px;
+  border-color: rgba(148, 163, 184, 0.62);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(239, 246, 255, 0.92), transparent 60%),
+    #ffffff;
+}
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl [class*="bg-zinc-50"] > .flex.items-center,
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl [class*="bg-zinc-50"].flex.items-center {
+  border-radius: 16px;
+}
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl section button[aria-label*="Move"] {
+  width: 42px;
+  height: 42px;
+  border-color: #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+}
+
+/* -------------------------------------------------------------------------- */
+/* WORD → PDF                                                                 */
+/* -------------------------------------------------------------------------- */
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > div.mt-8.rounded-3xl {
+  border-color: rgba(226, 232, 240, 0.95);
+  background: rgba(255, 255, 255, 0.97);
   box-shadow:
     0 18px 50px rgba(15, 23, 42, 0.06),
     0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl section.rounded-3xl button {
-  border-color: #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.04);
+main.min-h-screen.bg-zinc-50 .word-preview-container {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 22px;
+  background: #e2e8f0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl input#pdf-file-name {
-  min-height: 50px;
+main.min-h-screen.bg-zinc-50 .word-preview-container .docx-wrapper {
+  background: #e2e8f0 !important;
+}
+
+main.min-h-screen.bg-zinc-50 .word-preview-container .docx-wrapper > section {
+  border-radius: 4px;
+  box-shadow:
+    0 16px 36px rgba(15, 23, 42, 0.14) !important,
+    0 2px 6px rgba(15, 23, 42, 0.06) !important;
+}
+
+main.min-h-screen.bg-zinc-50 .word-preview-container [data-makeudoc-editable="true"] {
+  outline: 2px dashed rgba(245, 158, 11, 0.55);
+  outline-offset: 4px;
+}
+
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl .word-preview-container + * {
+  scroll-margin-top: 20px;
+}
+
+/* Editor toolbar */
+main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl .word-preview-container ~ div.rounded-2xl {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
 }
 
 /* -------------------------------------------------------------------------- */
-/* PDF → Images workspace                                                      */
+/* PASSPORT PHOTO                                                             */
+/* -------------------------------------------------------------------------- */
+
+main.min-h-screen.overflow-x-hidden.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+}
+
+main.min-h-screen.overflow-x-hidden.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type label {
+  min-height: 320px;
+  border-color: rgba(148, 163, 184, 0.62);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(239, 246, 255, 0.94), transparent 62%),
+    #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 10px 26px rgba(15, 23, 42, 0.04);
+}
+
+main.min-h-screen.overflow-x-hidden.bg-zinc-50 canvas {
+  border-radius: 20px;
+  box-shadow:
+    0 22px 48px rgba(15, 23, 42, 0.16),
+    0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+main.min-h-screen.overflow-x-hidden.bg-zinc-50 input[type="range"] {
+  height: 8px;
+  border-radius: 999px;
+}
+
+main.min-h-screen.overflow-x-hidden.bg-zinc-50 button[class*="border-blue-500"][class*="bg-blue-50"] {
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Image → PDF / PDF → Images retained premium treatment                      */
 /* -------------------------------------------------------------------------- */
 
 main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl {
@@ -193,73 +294,12 @@ main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl h1 {
   font-size: clamp(2.2rem, 5vw, 3.5rem);
 }
 
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type {
-  margin-top: 2.5rem;
-  padding: 2.5rem;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(12px);
-}
-
 main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type label {
-  border-color: rgba(148, 163, 184, 0.65);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(239, 246, 255, 0.95), transparent 58%),
-    #ffffff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 8px 24px rgba(15, 23, 42, 0.035);
-}
-
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type label span {
-  border: 1px solid rgba(37, 99, 235, 0.18);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
-  box-shadow:
-    0 12px 28px rgba(37, 99, 235, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type > div.rounded-xl {
-  border: 1px solid #e2e8f0;
-  background: linear-gradient(180deg, #f8fafc, #ffffff);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-}
-
-main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section:nth-of-type(2) article {
-  border-color: rgba(226, 232, 240, 0.95);
-  box-shadow:
-    0 12px 30px rgba(15, 23, 42, 0.055),
-    0 2px 7px rgba(15, 23, 42, 0.025);
+  border-color: rgba(148, 163, 184, 0.62);
 }
 
 /* -------------------------------------------------------------------------- */
-/* Passport photo workspace                                                    */
-/* -------------------------------------------------------------------------- */
-
-main.min-h-screen.bg-zinc-50 canvas {
-  border-radius: 18px;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
-}
-
-main.min-h-screen.bg-zinc-50 input[type="range"] {
-  height: 7px;
-  border-radius: 999px;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Word → PDF editor                                                           */
-/* -------------------------------------------------------------------------- */
-
-main.min-h-screen.bg-zinc-50 [data-makeudoc-editable="true"]:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.35);
-  outline-offset: 3px;
-}
-
-main.min-h-screen.bg-zinc-50 .word-preview-panning {
-  cursor: grabbing;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Mobile                                                                      */
+/* Mobile                                                                     */
 /* -------------------------------------------------------------------------- */
 
 @media (max-width: 640px) {
@@ -267,18 +307,18 @@ main.min-h-screen.bg-zinc-50 .word-preview-panning {
     padding-top: 2rem;
   }
 
-  main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type {
-    padding: 1rem;
-    margin-top: 2rem;
-  }
-
-  main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type label {
-    padding-top: 2.75rem;
-    padding-bottom: 2.75rem;
-  }
-
   main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section,
   main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-6xl > section {
     border-radius: 24px;
+  }
+
+  main.min-h-screen.overflow-x-hidden.bg-zinc-50 > div.mx-auto.max-w-6xl > section:first-of-type label {
+    min-height: 280px;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  main.min-h-screen.bg-zinc-50 > div.mx-auto.max-w-5xl > section:first-of-type label {
+    min-height: 270px;
   }
 }
