@@ -7,11 +7,11 @@ import { tools } from "../data/tools";
 const menuItems = ["PDF Tools", "Convert", "Image Tools", "AI Tools", "Business Tools"] as const;
 type MenuItem = (typeof menuItems)[number];
 const iconByCategory: Record<MenuItem, string> = { "PDF Tools": "▣", Convert: "↔", "Image Tools": "▧", "AI Tools": "✦", "Business Tools": "▤" };
-const sectionLabels: Record<MenuItem, string[]> = { "PDF Tools": ["Edit & Annotate", "Organize", "Optimize & Secure"], Convert: ["From PDF", "To PDF", "Image & Format"], "Image Tools": ["Photo & Documents", "Image Conversion", "Background & Optimization"], "AI Tools": ["Understand Documents", "Create & Analyze", "Automation"], "Business Tools": ["Business Documents", "Generators", "Coming Next"] };
+const sectionLabels: Record<MenuItem, string[]> = { "PDF Tools": ["Edit & Annotate", "Organize", "Optimize & Secure"], Convert: ["From PDF", "To PDF", "Image & Format"], "Image Tools": ["Photo & Documents", "Image Conversion", "Optimization"], "AI Tools": ["Understand Documents", "Create & Analyze", "Automation"], "Business Tools": ["Business Documents", "Generators", "Coming Next"] };
 const sectionAssignments: Record<MenuItem, Record<string, string[]>> = {
   "PDF Tools": { "Edit & Annotate": ["Edit PDF"], Organize: ["Merge PDF", "Split PDF", "Rotate PDF"], "Optimize & Secure": ["Compress PDF"] },
   Convert: { "From PDF": ["PDF to Word", "PDF to Excel", "PDF to PowerPoint", "PDF to Images"], "To PDF": ["Word to PDF", "Image to PDF"], "Image & Format": ["JPG to PNG", "PNG to JPG"] },
-  "Image Tools": { "Photo & Documents": ["Passport Photo Maker"], "Image Conversion": ["JPG to PNG", "PNG to JPG"], "Background & Optimization": ["Background Eraser", "Image Compressor"] },
+  "Image Tools": { "Photo & Documents": ["Passport Photo Maker", "Background Eraser"], "Image Conversion": ["JPG to PNG", "PNG to JPG"], Optimization: ["Image Compressor"] },
   "AI Tools": { "Understand Documents": ["OCR", "Chat with PDF"], "Create & Analyze": ["AI PDF Summarizer"], Automation: [] },
   "Business Tools": { "Business Documents": ["Invoice Generator", "Quotation Generator"], Generators: [], "Coming Next": [] },
 };
