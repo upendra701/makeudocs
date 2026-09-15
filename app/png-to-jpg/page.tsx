@@ -21,17 +21,22 @@ export default function PngToJpgPage() {
     setError(""); setDone(false); setFile(next);
     const url = URL.createObjectURL(next); setPreview(url);
     const image = new Image();
-    image.onload = () => { setDimensions({ width: image.naturalWidth, height: image.naturalHeight }); URL.revokeObjectURL(url); };
+    image.onload = () => { setDimensions({ width: image.naturalWidth, height: image.naturalHeight }); };
+    image.onerror = () => { setError("The PNG image could not be decoded. Please try another PNG file."); };
     image.src = url;
   };
 
+  // Keep the preview object URL alive while it is displayed and revoke it only
+  // when that preview is replaced or the component unmounts.
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
   const convert = async () => {
     if (!file || !preview) return;
     setBusy(true); setError(""); setDone(false);
     try {
-      const image = new Image(); image.src = preview; await image.decode();
+      const image = new Image();
+      image.src = preview;
+      await image.decode();
       const canvas = document.createElement("canvas"); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
       const ctx = canvas.getContext("2d"); if (!ctx) throw new Error("Your browser could not create an image canvas.");
       ctx.fillStyle = background; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(image, 0, 0);
