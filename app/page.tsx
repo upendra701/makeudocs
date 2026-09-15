@@ -222,17 +222,25 @@ export default function Home() {
               >
                 Make<span className="text-blue-600">Udocs</span>
               </Link>
+
               <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-500">
-                Free browser-based tools for everyday document and photo
-                preparation.
+                Simple document and photo tools for students and everyday
+                document preparation.
               </p>
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-zinc-900">Tools</h3>
-              <div className="mt-3 grid gap-2 text-sm text-zinc-500">
+              <h3 className="text-sm font-extrabold text-zinc-950">
+                Tools
+              </h3>
+
+              <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-zinc-500">
                 {tools.map((tool) => (
-                  <Link key={tool.href} href={tool.href} className="hover:text-blue-600">
+                  <Link
+                    key={tool.href}
+                    href={tool.href}
+                    className="transition hover:text-blue-600"
+                  >
                     {tool.title}
                   </Link>
                 ))}
@@ -240,25 +248,86 @@ export default function Home() {
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-zinc-900">Support</h3>
-              <div className="mt-3 grid gap-2 text-sm text-zinc-500">
-                <Link href="/about" className="hover:text-blue-600">About</Link>
-                <Link href="/contact" className="hover:text-blue-600">Contact</Link>
-                <Link href="/report-issue" className="hover:text-blue-600">Report an issue</Link>
+              <h3 className="text-sm font-extrabold text-zinc-950">
+                Support
+              </h3>
+
+              <div className="mt-3 flex flex-col items-start gap-2 text-sm text-zinc-500">
+                <Link
+                  href="/about"
+                  className="transition hover:text-blue-600"
+                >
+                  About MakeUdocs
+                </Link>
+
+                <Link
+                  href="/contact"
+                  className="transition hover:text-blue-600"
+                >
+                  Contact Us
+                </Link>
+
+                <Link
+                  href="/report-issue"
+                  className="transition hover:text-blue-600"
+                >
+                  Report an Issue
+                </Link>
+
+                <a
+                  href="mailto:support@makeudocs.com"
+                  className="transition hover:text-blue-600"
+                >
+                  support@makeudocs.com
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-extrabold text-zinc-950">
+                Legal
+              </h3>
+
+              <div className="mt-3 flex flex-col items-start gap-2 text-sm text-zinc-500">
+                <Link
+                  href="/privacy"
+                  className="transition hover:text-blue-600"
+                >
+                  Privacy Policy
+                </Link>
+
+                <Link
+                  href="/terms"
+                  className="transition hover:text-blue-600"
+                >
+                  Terms of Use
+                </Link>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-zinc-100 pt-5 text-xs text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
-            <p>© {new Date().getFullYear()} MakeUdocs. All rights reserved.</p>
-            <div className="flex gap-4">
-              <Link href="/privacy" className="hover:text-blue-600">Privacy</Link>
-              <Link href="/terms" className="hover:text-blue-600">Terms</Link>
+          <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-zinc-100 pt-5 text-xs text-zinc-400 sm:flex-row">
+            <p>
+              Made with <span className="text-blue-600">♥</span> for students
+              and professionals everywhere.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href="https://makeudocs.com"
+                className="font-semibold text-zinc-500 transition hover:text-blue-600"
+              >
+                makeudocs.com
+              </a>
+
+              <span className="text-zinc-300">|</span>
+
+              <p>© 2026 MakeUdocs. All rights reserved.</p>
             </div>
           </div>
         </div>
       </footer>
-      </main>
+    </main>
     </>
   );
 }
@@ -275,10 +344,17 @@ function TrustCard({
   color: string;
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow-sm">
-      <div className={`text-xl ${color}`}>{icon}</div>
-      <div className="mt-2 text-sm font-bold text-zinc-900">{title}</div>
-      <div className="mt-1 text-xs text-zinc-500">{description}</div>
+    <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-3.5 text-left shadow-sm">
+      <div className="flex items-center gap-3">
+        <span className={`text-xl ${color}`} aria-hidden="true">
+          {icon}
+        </span>
+
+        <div>
+          <p className="text-sm font-extrabold text-zinc-900">{title}</p>
+          <p className="mt-0.5 text-xs text-zinc-500">{description}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -301,31 +377,42 @@ function ToolCard({
   return (
     <Link
       href={href}
-      className={`group relative rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md ${
+      className={`group flex min-h-[194px] flex-col rounded-2xl border p-4 transition duration-200 hover:-translate-y-1 hover:shadow-lg ${
         featured
-          ? "border-blue-200 bg-blue-50/50"
-          : "border-zinc-200 bg-white"
+          ? "border-blue-300 bg-blue-50/70"
+          : "border-zinc-200 bg-white hover:border-blue-200"
       }`}
     >
-      {featured ? (
-        <span className="absolute right-3 top-3 rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
-          Popular
-        </span>
-      ) : null}
+      <div className="flex items-start justify-between">
+        <div
+          className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl ${iconBg}`}
+        >
+          {icon}
+        </div>
 
-      <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl ${iconBg}`}>
-        {icon}
+        {featured && (
+          <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-extrabold text-blue-600">
+            Popular
+          </span>
+        )}
       </div>
 
-      <h3 className="mt-4 font-bold text-zinc-950 group-hover:text-blue-600">
-        {title}
-      </h3>
+      <div className="mt-4">
+        <h3 className="text-sm font-extrabold leading-5 text-zinc-950">
+          {title}
+        </h3>
 
-      <p className="mt-1 text-xs leading-5 text-zinc-500">{description}</p>
+        <p className="mt-1.5 text-xs leading-5 text-zinc-500">
+          {description}
+        </p>
+      </div>
 
-      <span className="mt-4 inline-block text-xs font-bold text-blue-600">
-        Use tool →
-      </span>
+      <p className="mt-auto pt-5 text-xs font-extrabold text-blue-600">
+        Open tool
+        <span className="ml-1 transition-transform group-hover:inline-block group-hover:translate-x-1">
+          →
+        </span>
+      </p>
     </Link>
   );
 }
@@ -344,10 +431,24 @@ function BenefitCard({
   bordered?: boolean;
 }) {
   return (
-    <div className={`p-5 sm:p-6 ${bordered ? "border-y border-zinc-200 md:border-x md:border-y-0" : ""}`}>
-      <div className={`text-2xl ${color}`}>{icon}</div>
-      <h3 className="mt-3 font-bold text-zinc-950">{title}</h3>
-      <p className="mt-1 text-sm leading-6 text-zinc-500">{description}</p>
+    <div
+      className={`flex items-start gap-4 p-5 ${
+        bordered ? "border-y border-zinc-200 md:border-x md:border-y-0" : ""
+      }`}
+    >
+      <div
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-xl shadow-sm ${color}`}
+      >
+        {icon}
+      </div>
+
+      <div>
+        <h3 className={`text-sm font-extrabold ${color}`}>{title}</h3>
+
+        <p className="mt-1 text-xs leading-5 text-zinc-500">
+          {description}
+        </p>
+      </div>
     </div>
   );
 }
