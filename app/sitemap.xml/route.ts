@@ -1,10 +1,9 @@
 const baseUrl = "https://makeudocs.com";
 
-// Keep the sitemap focused on pages that are intended to attract organic
-// search traffic. Legal/support pages remain crawlable through internal links
-// but do not need to compete for crawl attention in the XML sitemap.
+// Keep the sitemap focused on important public pages and tool landing pages.
 const routes = [
   "",
+  "/tools",
   "/image-to-pdf",
   "/word-to-pdf",
   "/pdf-to-images",
