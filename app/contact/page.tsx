@@ -1,4 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Contact MakeUdocs – Support",
+  description:
+    "Contact MakeUdocs for support, questions, feedback or help with our free online document tools.",
+  alternates: {
+    canonical: "https://makeudocs.com/contact",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://makeudocs.com/contact",
+    title: "Contact MakeUdocs – Support",
+    description:
+      "Contact MakeUdocs for support, questions, feedback or help with our free online document tools.",
+    siteName: "MakeUdocs",
+  },
+};
 
 export default function ContactPage() {
   return (
