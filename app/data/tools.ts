@@ -23,7 +23,7 @@ export const tools: Tool[] = [
   { name: "PNG to JPG", description: "Convert PNG images to JPG with background color and quality controls.", href: "/png-to-jpg", category: "Image Tools", status: "available" },
   { name: "Image Compressor", description: "Reduce image file size, resize images, and choose JPG, WebP, or PNG output.", href: "/compress-image", category: "Image Tools", status: "available" },
   { name: "OCR", description: "Extract editable text from images and scanned documents in your browser.", href: "/ocr", category: "AI Tools", status: "available" },
-  { name: "PDF to PowerPoint", description: "Convert PDF content into presentation slides.", href: "/pdf-to-ppt", category: "Convert", status: "coming-soon" },
+  { name: "PDF to PowerPoint", description: "Convert PDF content into presentation slides.", href: "/pdf-to-ppt", category: "Convert", status: "available" },
   { name: "Chat with PDF", description: "Ask questions and get answers from your documents.", href: "/chat-pdf", category: "AI Tools", status: "coming-soon" },
   { name: "AI PDF Summarizer", description: "Create clear summaries from long documents.", href: "/ai-pdf-summarizer", category: "AI Tools", status: "coming-soon" },
   { name: "Invoice Generator", description: "Create professional invoices and export them to PDF.", href: "/invoice-generator", category: "Business Tools", status: "coming-soon" },
