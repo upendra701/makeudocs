@@ -1,4 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "About MakeUdocs – Free Online Document Tools",
+  description:
+    "Learn about MakeUdocs, a free collection of browser-based document and photo tools for everyday file preparation.",
+  alternates: {
+    canonical: "https://makeudocs.com/about",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://makeudocs.com/about",
+    title: "About MakeUdocs – Free Online Document Tools",
+    description:
+      "Learn about MakeUdocs, a free collection of browser-based document and photo tools for everyday file preparation.",
+    siteName: "MakeUdocs",
+  },
+};
 
 export default function AboutPage() {
   return (
