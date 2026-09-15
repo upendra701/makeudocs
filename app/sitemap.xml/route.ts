@@ -1,5 +1,8 @@
 const baseUrl = "https://makeudocs.com";
 
+// Keep the sitemap focused on pages that are intended to attract organic
+// search traffic. Legal/support pages remain crawlable through internal links
+// but do not need to compete for crawl attention in the XML sitemap.
 const routes = [
   "",
   "/image-to-pdf",
@@ -8,11 +11,6 @@ const routes = [
   "/compress-pdf",
   "/merge-pdf",
   "/passport-photo",
-  "/about",
-  "/contact",
-  "/report-issue",
-  "/privacy",
-  "/terms",
 ];
 
 export function GET() {
@@ -21,8 +19,6 @@ export function GET() {
       (route) => `
   <url>
     <loc>${baseUrl}${route}</loc>
-    <changefreq>${route === "" ? "weekly" : "monthly"}</changefreq>
-    <priority>${route === "" ? "1.0" : "0.8"}</priority>
   </url>`
     )
     .join("");
